@@ -1,0 +1,41 @@
+
+<head>
+<html>
+<body>
+<form class="form-inline mb-1" method="POST" id="nameform" action="javascript:void(null);" onsubmit="login()">
+<input value="Send" type="submit">
+</form>
+</body>
+</html>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script>
+    socket = new WebSocket("ws://localhost:8090/game/connect?gameId=1&name=NKOHA");
+    socket.onmessage = function (event) {
+    };
+
+    socket.onopen = function () { };
+
+    socket.onclose = function (event) {
+        console.log('Code: ' + event.code + ' cause: ' + event.reason);
+    };
+
+    socket.onerror = function (error) {
+        console.log("Error " + error.message);
+    };
+
+
+    function login() {
+
+    var template = {
+        topic: "MOVE",
+        data: {
+            direction: "UP"
+        }
+    };
+
+    var jsont = JSON.stringify(template);
+
+    socket.send(jsont);
+    }
+</script>

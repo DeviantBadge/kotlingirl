@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<form class="form-inline mb-1" method="POST" id="nameform" action="javascript:void(null);" onsubmit="login()">
+    <div class="form-group mx-sm-3">
+        <input id="name" class="form-control" name="name" style="font-size:medium" type="text" placeholder="Name">
+    </div>
+    <input class="btn btn-primary" value="Login" style="font-size:large" type="submit" id="loginBtn">
+</form>
+</body>
+</html>
+
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+
+<!--
+We are using SockJS lib
+https://github.com/sockjs/sockjs-client
+-->
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+
+
+<script>
+    var host = 'localhost';
+    var port = 8080;
+    var wsport = 8090;
+    var path = 'matchmaker';
+    var wspath = 'game';
+    var sock;
+    var gameId;
+    var name;
+    function login() {
+        name = $('#name').serialize();
+        var settings = {
+            "method": "POST",
+            "crossDomain": true,
+            "url": "http://" + host + ":" + port + "/" + path + "/join",
+            "data": name
+                };
+        $.ajax(settings).done(function (response) {
+            gameId = response;
+            initSock();
+        }).fail(function (jqXHR, textStatus) {
+            alert(jqXHR.status + " " + jqXHR.statusText + ". " + jqXHR.responseText);
+            console.log(jqXHR.status + " " + jqXHR.statusText + ". " + jqXHR.responseText);
+        });
+    }
+    function initSock() {
+        sock = new SockJS('http://' + host + ':' + wsport + '/' + wspath + '/connect?gameId=' + gameId + '&' + name);
+        sock.onmessage = function (e) {
+        };
+        sock.onopen = function() {
+            console.log('open');
+        };
+        sock.onclose = function () {
+            console.log('close');
+        }
+    }
+    function setHistory(data) {
+        $("#history").append(data.replace(/\n/g, "<br />"))
+        $("#history").scrollTop($("#history")[0].scrollHeight);
+    }
+    function logout() {
+        if(sock != null) sock.close();
+    }
+</script>z

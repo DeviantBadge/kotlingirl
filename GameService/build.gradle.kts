@@ -30,13 +30,13 @@ dependencies {
     compile(kotlin("reflect"))
     compile("io.github.rybalkinsd", "kohttp", "0.3.1")
     compile("org.slf4j", "slf4j-api", "1.7.25")
-    // https://mvnrepository.com/artifact/org.projectlombok/lombok
-    compile("org.projectlombok", "lombok", "1.18.4")
-    compile(springCloud("netflix-eureka-client"))
 
+//    compile(springCloud("netflix-eureka-client"))
 
     compile(spring("web"))
     compile(spring("actuator"))
+    compile(spring("websocket"))
+//    compile(spring("data-jpa"))
 
     testCompile("junit", "junit", "4.12")
     testCompile(spring("test"))

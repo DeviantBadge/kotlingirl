@@ -30,6 +30,10 @@ dependencies {
     compile(kotlin("reflect"))
     compile("io.github.rybalkinsd", "kohttp", "0.3.1")
     compile("org.slf4j", "slf4j-api", "1.7.25")
+    // https://mvnrepository.com/artifact/org.projectlombok/lombok
+    compile("org.projectlombok", "lombok", "1.18.4")
+    compile(springCloud("netflix-eureka-client"))
+
 
     compile(spring("web"))
     compile(spring("actuator"))
@@ -56,3 +60,6 @@ tasks {
 
 fun DependencyHandler.spring(module: String, version: String? = null) =
     "org.springframework.boot:spring-boot-starter-$module${version?.let { ":$version" } ?: ""}"
+
+fun DependencyHandler.springCloud(module: String, version: String = "2.0.2.RELEASE") =
+        "org.springframework.cloud:spring-cloud-starter-$module:$version"

@@ -11,3 +11,5 @@ rootProject.name = "kotlingirl"
 
 include("MatchMaker")
 include("GameService")
+include("Front")
+include("KotlingirlDiscovery")

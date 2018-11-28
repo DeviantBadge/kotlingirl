@@ -5,11 +5,11 @@ import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
 
 @SpringBootApplication
-class ChatApplication {
+class GameServiceApplication {
     @Bean
-    fun standardSettings() = 2
+    fun standardSettings(): Int = 2
 }
 
 fun main(args: Array<String>) {
-    runApplication<ChatApplication>(*args)
+    runApplication<GameServiceApplication>(*args)
 }

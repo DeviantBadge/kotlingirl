@@ -1,10 +1,10 @@
 package io.rybalkinsd.kotlinbootcamp.server
 
-import com.kohttp.dsl.httpGet
 import com.kohttp.dsl.httpPost
-import com.kohttp.ext.httpGet
+import io.rybalkinsd.kotlinbootcamp.server.proxies.GameServiceProxy
 import io.rybalkinsd.kotlinbootcamp.util.logger
 import okhttp3.Response
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
 @Component
@@ -14,7 +14,11 @@ class HttpClient {
     val HOST = "localhost"
     val PORT = 8090
 
+    @Autowired
+    lateinit var gameServiceProxy: GameServiceProxy
 
+    fun getGameIdProxy(count: Int): Int? =
+            gameServiceProxy.create(count).toInt()
 
     fun getGameId(count: Int): Int? {
         val response: Response = httpPost {
@@ -24,7 +28,7 @@ class HttpClient {
             param {
                 "playerCount" to count
             }
-            body { form {  } }
+            body { form { } }
         }
         if (response.isSuccessful)
             return response.body()?.string()?.toInt()
@@ -35,7 +39,7 @@ class HttpClient {
         }
     }
 
-    fun startGame(gameId: Int){
+    fun startGame(gameId: Int) {
         httpPost {
             host = HOST
             port = PORT
@@ -43,7 +47,7 @@ class HttpClient {
             param {
                 "gameId" to gameId
             }
-            body { form {  } }
+            body { form { } }
         }
     }
 

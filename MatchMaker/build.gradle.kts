@@ -30,12 +30,15 @@ dependencies {
     compile(kotlin("reflect"))
     compile("io.github.rybalkinsd", "kohttp", "0.3.1")
     compile("org.slf4j", "slf4j-api", "1.7.25")
+    compile(springCloud("openfeign"))
+    compile(springCloud("netflix-ribbon"))
+    compile(springCloud("netflix-eureka-client"))
 
-    compile(spring("web"))
-    compile(spring("actuator"))
+    compile(springBoot("web"))
+    compile(springBoot("actuator"))
 
     testCompile("junit", "junit", "4.12")
-    testCompile(spring("test"))
+    testCompile(springBoot("test"))
 
     ktlint("com.github.shyiko", "ktlint", "0.28.0")
 }
@@ -54,5 +57,8 @@ tasks {
     }
 }
 
-fun DependencyHandler.spring(module: String, version: String? = null) =
-    "org.springframework.boot:spring-boot-starter-$module${version?.let { ":$version" } ?: ""}"
+fun DependencyHandler.springBoot(module: String, version: String? = null) =
+        "org.springframework.boot:spring-boot-starter-$module${version?.let { ":$version" } ?: ""}"
+
+fun DependencyHandler.springCloud(module: String, version: String = "2.0.2.RELEASE") =
+        "org.springframework.cloud:spring-cloud-starter-$module:$version"

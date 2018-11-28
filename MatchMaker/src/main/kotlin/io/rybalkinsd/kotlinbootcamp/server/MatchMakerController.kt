@@ -11,10 +11,12 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
 
 @Controller
+@RestController
 @RequestMapping("/chat")
 class MatchMakerController {
     val log = logger()
@@ -40,9 +42,9 @@ class MatchMakerController {
         if (checkResult != null)
             return checkResult
         var game = games.poll()
+        val gameId = getGameId(2)
+                ?: return ResponseEntity.status(500).body("Failed to get Game instance Id")
         if (game == null) {
-            val gameId = getGameId(2)
-                    ?: return ResponseEntity.status(500).body("Failed to get Game instance Id")
             game = Game(gameId)
         }
         game.currentPlayerAmount++
@@ -59,7 +61,7 @@ class MatchMakerController {
     }
 
     private fun getGameId(count: Int): Int? {
-        return client.getGameId(count)
+        return client.getGameIdProxy(count)
     }
 
     fun checkUser(name: String): ResponseEntity<String>? = when {

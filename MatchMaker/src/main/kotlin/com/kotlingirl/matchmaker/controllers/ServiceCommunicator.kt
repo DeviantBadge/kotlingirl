@@ -8,7 +8,7 @@ import com.kotlingirl.serverconfiguration.elements.InternalException
 import com.kotlingirl.serverconfiguration.elements.matchmaker.MatchMakerGameUnit
 import com.kotlingirl.serverconfiguration.elements.messages.GameServiceResponse
 import com.kotlingirl.serverconfiguration.elements.messages.UserRequest
-import com.kotlingirl.serverconfiguration.proxies.GameServiceProxy
+import com.kotlingirl.serverconfiguration.proxies.gameservice.GameServiceProxy
 import com.kotlingirl.serverconfiguration.util.extensions.fromJsonString
 import com.kotlingirl.serverconfiguration.util.extensions.logger
 import com.kotlingirl.serverconfiguration.util.extensions.toJsonHttpEntity
@@ -35,9 +35,6 @@ class ServiceCommunicator {
 
     @Autowired
     lateinit var loadBalancer: LoadBalancerClient
-
-    @Autowired
-    lateinit var gameServiceProxy: GameServiceProxy
 
     // todo use some settings in reqest
     fun createCasualGame(request: UserRequest): MatchMakerGameUnit {

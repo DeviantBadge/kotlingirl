@@ -8,3 +8,6 @@
  */
 
 rootProject.name = "GameService"
+
+include(":GlobalServerConfiguration")
+project(":GlobalServerConfiguration").projectDir = File(settingsDir, "../GlobalServerConfiguration")

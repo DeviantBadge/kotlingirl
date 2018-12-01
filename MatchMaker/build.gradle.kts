@@ -1,59 +1,73 @@
+import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
 import org.gradle.internal.impldep.aQute.bnd.osgi.Analyzer
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.net.URI
 
-group = "io.rybalkinsd"
+group = "com.kotlingirl"
 version = "1.0-SNAPSHOT"
-
-plugins {
-    val ktVersion = "1.2.71"
-    kotlin("jvm") version ktVersion
-
-    // spring-related
-    id("org.jetbrains.kotlin.plugin.spring") version ktVersion
-    id("org.springframework.boot") version "2.0.5.RELEASE"
-    id("io.spring.dependency-management") version "1.0.5.RELEASE"
-}
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
-}
 
 repositories {
     jcenter()
     mavenCentral()
+    maven { url = URI("https://repo.spring.io/milestone") }
 }
 
-val ktlint by configurations.creating
+buildscript {
+    val kotlinVersion = "1.3.0"
+    val springBootVersion = "2.1.0.RELEASE"
+
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
+        classpath("org.jetbrains.kotlin:kotlin-allopen:${kotlinVersion}")
+    }
+}
+
+apply(plugin = "kotlin")
+apply(plugin = "kotlin-spring")
+apply(plugin = "idea")
+apply(plugin = "org.springframework.boot")
+apply(plugin = "io.spring.dependency-management")
+
+plugins {
+    java
+}
+
+tasks.withType<KotlinCompile> {
+    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.freeCompilerArgs = listOf("-Xjsr305=strict")
+}
 
 dependencies {
-    compile(kotlin("stdlib-jdk8"))
-    compile(kotlin("reflect"))
-    compile("io.github.rybalkinsd", "kohttp", "0.3.1")
-    compile("org.slf4j", "slf4j-api", "1.7.25")
-    compile(springCloud("openfeign"))
-    compile(springCloud("netflix-ribbon"))
-    compile(springCloud("netflix-eureka-client"))
+    implementation(project(":GlobalServerConfiguration"))
 
-    compile(springBoot("web"))
-    compile(springBoot("actuator"))
 
-    testCompile("junit", "junit", "4.12")
-    testCompile(springBoot("test"))
+    implementation("com.alibaba", "fastjson", "1.2.54")
+    implementation("postgresql", "postgresql", "9.3-1102.jdbc41")
+    implementation("io.github.rybalkinsd", "kohttp", "0.3.1")
+    implementation("org.slf4j", "slf4j-api", "1.7.25")
 
-    ktlint("com.github.shyiko", "ktlint", "0.28.0")
+    implementation(kotlin("stdlib-jdk8"))
+    implementation(kotlin("reflect"))
+
+    implementation(springBoot("web"))
+    implementation(springBoot("actuator"))
+
+    implementation(springCloud("netflix-ribbon"))
+    implementation(springCloud("openfeign"))
+    implementation(springCloud("netflix-eureka-client"))
+
+    testImplementation("junit", "junit", "4.12")
+    testImplementation(springBoot("test"))
 }
 
-tasks {
-    val ktlint by creating(JavaExec::class) {
-        group = "verification"
-        description = "Check Kotlin code style."
-        main = "com.github.shyiko.ktlint.Main"
-        classpath = ktlint
-        args = listOf("src/**/*.kt")
-    }
-
-    "check" {
-        dependsOn(ktlint)
+ext["springCloudVersion"] = "Greenwich.M3"
+configure<DependencyManagementExtension> {
+    imports {
+        mavenBom("org.springframework.cloud:spring-cloud-dependencies:${ext["springCloudVersion"]}")
     }
 }
 

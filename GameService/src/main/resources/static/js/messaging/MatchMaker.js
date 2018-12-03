@@ -26,15 +26,13 @@ MatchMaker.prototype.getSessionId = function (parameters) {
     var settings = this.getSettings(parameters);
     settings.data = JSON.stringify(parameters);
 
-    var sessionId = 0;
-    /* todo do not forget about this:
+    var sessionId = null;
     $.ajax(settings).done(function(id) {
         sessionId = id;
         console.log("This lobby id - " + id);
     }).fail(function (jqXHR, textStatus) {
         alert("Matchmaker request failed");
     });
-    */
 
     return sessionId;
 };

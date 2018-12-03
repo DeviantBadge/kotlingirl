@@ -38,8 +38,9 @@ class Game(val count: Int) {
         Thread {
             broker = Broker(connectionPool)
             ticker.broker = broker
+            ticker.makeBG()
             val user = connectionPool.getPlayer(connections.first())
-            val pawn = Pawn(user!!.id, Position(20, 10), true, "")
+            val pawn = Pawn(user!!.id, Position(0, 32), true, "")
             ticker.addPawn(connections.first(), pawn)
 //        val replica = Replica("REPLICA", Data(listOf(pawn), false))
             val replica = Data(listOf(pawn), false)

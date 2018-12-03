@@ -7,13 +7,15 @@ var Game = function (stage) {
     this.bombs =  [];
     this.bonuses = [];
 
-    this.serverProxy = null;
+    this.serverProxy = new ServerProxy();
 };
 
-Game.prototype.start = function (gameID) {
+// when game starts we connect socket to URL in ClusterSettings
+Game.prototype.start = function () {
     gInputEngine.setupBindings();
-    this.serverProxy = new ServerProxy();
-    this.serverProxy.connectToGameServer(gameID);
+    // var gameId = gMatchMaker.getSessionId();
+    var gameId = 0;
+    this.serverProxy.connectToGameServer(gameId);
     this.drawBackground();
 
     var self = this;
@@ -23,12 +25,11 @@ Game.prototype.start = function (gameID) {
 };
 
 Game.prototype.update = function () {
-    var i;
-    for (i = 0; i < this.players.length; i++) {
+    for (var i = 0; i < this.players.length; i++) {
         this.players[i].update();
     }
 
-    for (i = 0; i < this.bombs.length; i++) {
+    for (var i = 0; i < this.bombs.length; i++) {
         this.bombs[i].update();
     }
 
@@ -51,29 +52,38 @@ Game.prototype.finish = function () {
 
 
 Game.prototype.drawBackground = function () {
-    for (var i = 0; i < GM.getWidthInTiles(); i++) {
-        for (var j = 0; j < GM.getHeightInTiles(); j++) {
-            var bitmap = new createjs.Bitmap(textureManager.asset.tile.grass);
-            bitmap.x = i * GM.getTileSize();
-            bitmap.y = j * GM.getTileSize();
+    for (var i = 0; i < gCanvas.tiles.w; i++) {
+        for (var j = 0; j < gCanvas.tiles.h; j++) {
+            var bitmap = new createjs.Bitmap(gGameEngine.asset.tile.grass);
+            bitmap.x = i * gCanvas.tileSize;
+            bitmap.y = j * gCanvas.tileSize;
             this.stage.addChild(bitmap);
         }
     }
 };
 
+// Каждую реплику происходит обновление игрового состояния, проверяем каждый объект - должны ли мы его удалить
+// Назвал бы его не GarbageCollector а ObjectsManager потому что он не только удаляет объекты, а так же создает и
+// изменяет (Pawn и  Bomb)
 Game.prototype.gc = function (gameObjects) {
     var survivors = new Set();
 
+    // Стоит отметить что все объекты изначально разделяются по ID
     for (var i = 0; i < gameObjects.length; i++) {
         var wasDeleted = false;
         var obj = gameObjects[i];
 
+        // Суть в том, что Пешка и Бомба живут ровно столько, сколько мы отправляем их в реплике (В отличие от других
+        // объектов, таких как ящики)
         if (obj.type === 'Pawn' || obj.type === 'Bomb') {
             gMessageBroker.handler[obj.type](obj);
             survivors.add(obj.id);
             continue;
         }
 
+        // Ящики же и бонусы живут между двумя репликами, в которых они присутствуют
+        // Если они были присланны в реплике в первый раз, то они появляются
+        // Если же второй раз, то удаляются
         [this.tiles, this.bonuses].forEach(function (it) {
             var i = it.length;
             while (i--) {
@@ -85,11 +95,14 @@ Game.prototype.gc = function (gameObjects) {
             }
         });
 
-        if (!wasDeleted) {
+        // здесь мы добавляем обычгые объекты, кстати условие на проверку Pawn вроде лишнее, так как в начале мы
+        // проверяем на равенство
+        if (!wasDeleted && obj.type !== 'Pawn') {
             gMessageBroker.handler[obj.type](obj);
         }
     }
 
+    // Вот как раз мы тут удаляем Pawn и Bomb
     [this.players, this.bombs].forEach(function (it) {
         var i = it.length;
         while (i--) {

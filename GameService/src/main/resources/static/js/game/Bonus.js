@@ -1,29 +1,31 @@
-var Bonus = function (id, position, texture) {
+// Вид объекта в реплике
+// {"id":2,"type":"Bonus","position":{"y":20,"x":10},"bonusType":"BOMBS"}
+// {"id":3,"type":"Bonus","position":{"y":20,"x":10},"bonusType":"SPEED"}
+// {"id":4,"type":"Bonus","position":{"y":20,"x":10},"bonusType":"RANGE"}
+var Bonus = function (id, position, type) {
     this.id = id;
-    var img = texture;
+
+    var img;
+    if (type === 'SPEED') {
+        img = gGameEngine.asset.bonus.speed;
+    } else if (type === 'BOMBS') {
+        img = gGameEngine.asset.bonus.bombs;
+    } else if (type === 'RANGE') {
+        img = gGameEngine.asset.bonus.explosion;
+    }
 
     this.bmp = new createjs.Bitmap(img);
-
-    if(this._properties.isAligned()) {
-        this.bmp.regX = (img.width - this._properties.getAlignHeight()) / 2;
-        this.bmp.regY = (img.height - this._properties.getAlignHeight()) / 2;
-    }
-
-    if(this._properties.isResized()) {
-        this.bmp.scaleX = this._properties.getWidth() / img.width;
-        this.bmp.scaleY = this._properties.getHeight()/ img.height;
-    }
-
+    this.bmp.regX = -1;
+    this.bmp.regY = -1;
     this.bmp.x = position.x;
     this.bmp.y = position.y;
+
+    gGameEngine.stage.addChild(this.bmp);
+    gGameEngine.game.bonuses.push(this);
 };
 
-Bonus.prototype._properties = new TextureProperty()
-    .setAligned(true);
-
 Bonus.prototype.remove = function() {
-    if(this.bmp.stage !== null)
-        this.bmp.stage.removeChild(this.bmp);
+    gGameEngine.stage.removeChild(this.bmp);
 };
 
 Bonus.prototype.update = function() {

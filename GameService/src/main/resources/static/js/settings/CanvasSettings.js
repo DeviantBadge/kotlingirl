@@ -1,27 +1,29 @@
 var CanvasSettings = function () {
-    this._tileSize = 32;
-    this._tiles = {
+    this.tileSize = 32;
+    this.tiles = {
         w: 27,
         h: 17
     };
-};
-
-CanvasSettings.prototype.getTileSize = function () {
-    return this._tileSize;
+    this.size = {
+        w: this.tileSize * this.tiles.w,
+        h: this.tileSize * this.tiles.h
+    };
 };
 
 CanvasSettings.prototype.getWidthInPixel = function () {
-    return this._tiles.w * this._tileSize;
+    return this.size.w;
 };
 
 CanvasSettings.prototype.getWidthInTiles = function () {
-    return this._tiles.w;
+    return this.tiles.w;
 };
 
 CanvasSettings.prototype.getHeightInPixel = function () {
-    return this._tiles.h * this._tileSize;
+    return this.size.h;
 };
 
 CanvasSettings.prototype.getHeightInTiles = function () {
-    return this._tiles.h;
+    return this.tiles.h;
 };
+
+gCanvas = new CanvasSettings();

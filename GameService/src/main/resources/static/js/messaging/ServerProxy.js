@@ -6,8 +6,6 @@ var ServerProxy = function () {
     };
 };
 
-
-
 ServerProxy.prototype.setupMessaging = function() {
     var self = this;
     gInputEngine.subscribe('up', function () {
@@ -30,14 +28,12 @@ ServerProxy.prototype.setupMessaging = function() {
     });
 };
 
+// Присоединяемся к серверу по сокету
+// у WebSocketSession в Java имеется функция getURI() с помощью которого этот "Хвост" получается
 ServerProxy.prototype.connectToGameServer = function(gameId) {
-    this.socket = new SockJS(gClusterSettings.gameServerUrl()
-        + "?name=" + GM.credentials.name
-        + "&gameId=" + GM.gameId
-    );
+    this.socket = new SockJS(gClusterSettings.gameServerUrl() + "?gameId=" + gameId + "&name=NKOHA");
+    // this.socket = new WebSocket(gClusterSettings.gameServerUrl() + "?gameId=" + gameId + "&name=NKOHA");
     var self = this;
-    var prepared = false;
-
     this.socket.onmessage = function (event) {
         var msg = JSON.parse(event.data);
         if (self.handler[msg.topic] === undefined) {
@@ -46,19 +42,7 @@ ServerProxy.prototype.connectToGameServer = function(gameId) {
         self.handler[msg.topic](msg);
     };
 
-    this.socket.onopen = function () {
-        console.log("Connected");
-        while (!prepared){
-        }
-
-        var template = {
-            topic: "READY",
-            gameId: GM.gameId,
-            data: {
-            }
-        };
-        self.socket.send(JSON.stringify(template));
-    };
+    this.socket.onopen = function () { };
 
     this.socket.onclose = function (event) {
         console.log('Code: ' + event.code + ' cause: ' + event.reason);
@@ -69,5 +53,4 @@ ServerProxy.prototype.connectToGameServer = function(gameId) {
     };
 
     this.setupMessaging();
-    prepared = true;
 };

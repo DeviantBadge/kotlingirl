@@ -1,52 +1,38 @@
-var Bomb = function (id, position, texture) {
+// Вид объекта в реплике
+// {"id":1,"type":"Bomb","position":{"y":20,"x":10}}
+var Bomb = function (id, position, strength) {
     this.id = id;
-    var img = texture;
-    // todo this.strength = strength;
+    this.strength = strength;
 
-    // if you have got unusual bomb, put its size here
     var size = {
-        // now i use this parameters
         w: 28,
         h: 28
     };
 
     var spriteSheet = new createjs.SpriteSheet({
-        images: [img],
+        images: [gGameEngine.asset.bomb],
         frames: {
             width: size.w,
-            height: size.h
+            height: size.h,
+            regX: -1,
+            regY: -1
         },
         animations: {
-            // количество анимаций скорее всего тоже вручную вводить придется
             idle: [0, 4, "idle", 0.2]
         }
     });
 
     this.bmp = new createjs.Sprite(spriteSheet);
-
-    if(this._properties.isAligned()) {
-        this.bmp.regX = (size.w - this._properties.getAlignHeight()) / 2;
-        this.bmp.regY = (size.h - this._properties.getAlignHeight()) / 2;
-    }
-
-    if(this._properties.isResized()) {
-        this.bmp.scaleX = this._properties.getWidth() / size.w;
-        this.bmp.scaleY = this._properties.getHeight()/ size.h;
-    }
-
     this.bmp.x = position.x;
     this.bmp.y = position.y;
 
-    // активация анимации
     this.bmp.gotoAndPlay('idle');
+    gGameEngine.stage.addChild(this.bmp);
+    gGameEngine.game.bombs.push(this);
 };
 
-Bomb.prototype._properties = new TextureProperty()
-    .setAligned(true);
-
 Bomb.prototype.remove = function() {
-    if(this.bmp.stage !== null)
-        this.bmp.stage.removeChild(this.bmp);
+    gGameEngine.stage.removeChild(this.bmp);
 };
 
 Bomb.prototype.update = function () {

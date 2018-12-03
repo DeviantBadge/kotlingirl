@@ -12,7 +12,6 @@ import org.springframework.web.socket.handler.TextWebSocketHandler
 class SockEventHandler : TextWebSocketHandler() {
     val log = logger()
 
-    @Throws(Exception::class)
     override fun afterConnectionEstablished(session: WebSocketSession) {
         super.afterConnectionEstablished(session)
         logger().info("haha, session established, or not")

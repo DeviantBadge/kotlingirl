@@ -6,7 +6,7 @@ object GameServiceConstants {
     // **************************************************************************************************
     const val GAME_PATH = "/game"
     const val CREATE_PATH = "/create"
-    const val CONNECT_PATH = "/connect"
+    const val APPEND_PLAYER_PATH = "/append_player"
     const val START_PATH = "/start"
 
     // **************************************************************************************************

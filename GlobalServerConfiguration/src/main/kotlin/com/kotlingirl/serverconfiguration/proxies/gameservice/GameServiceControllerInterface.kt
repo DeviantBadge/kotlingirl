@@ -1,9 +1,11 @@
 package com.kotlingirl.serverconfiguration.proxies.gameservice
 
 import com.kotlingirl.serverconfiguration.GameServiceConstants
+import com.kotlingirl.serverconfiguration.elements.messages.GameServiceResponse
+import com.kotlingirl.serverconfiguration.elements.messages.UserCredentials
+import com.kotlingirl.serverconfiguration.elements.messages.UserRequestParameters
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -13,15 +15,10 @@ interface GameServiceControllerInterface {
     @PostMapping(
             path = [GameServiceConstants.CREATE_PATH],
             consumes = [MediaType.APPLICATION_JSON_VALUE])
-    fun create(@RequestBody body: String): ResponseEntity<String>
+    fun create(@RequestBody parameters: UserRequestParameters): ResponseEntity<GameServiceResponse>
 
     @PostMapping(
-            path = [GameServiceConstants.CONNECT_PATH],
+            path = [GameServiceConstants.APPEND_PLAYER_PATH],
             consumes = [MediaType.APPLICATION_JSON_VALUE])
-    fun connect(@RequestBody body: String): ResponseEntity<String>
-
-    @PostMapping(
-            path = [GameServiceConstants.START_PATH],
-            consumes = [MediaType.APPLICATION_JSON_VALUE])
-    fun start(@RequestBody body: String): ResponseEntity<String>
+    fun connect(@RequestBody credentials: UserCredentials): ResponseEntity<String>
 }

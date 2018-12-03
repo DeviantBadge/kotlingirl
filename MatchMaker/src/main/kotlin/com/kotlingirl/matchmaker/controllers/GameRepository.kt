@@ -1,7 +1,9 @@
 package com.kotlingirl.matchmaker.controllers
 
 import com.kotlingirl.serverconfiguration.elements.matchmaker.MatchMakerGameUnit
+import com.kotlingirl.serverconfiguration.elements.messages.UserCredentials
 import com.kotlingirl.serverconfiguration.elements.messages.UserRequest
+import com.kotlingirl.serverconfiguration.elements.messages.UserRequestParameters
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Repository
 import java.util.*
@@ -15,11 +17,11 @@ class GameRepository {
     @Autowired
     lateinit var serviceCommunicator: ServiceCommunicator
 
-    fun getCasualGame(request: UserRequest) =
-            games.poll() ?: serviceCommunicator.createCasualGame(request)
+    fun getCasualGame(parameters: UserRequestParameters?) =
+            games.poll() ?: serviceCommunicator.createCasualGame(parameters)
 
-    fun injectPlayerToGame(game: MatchMakerGameUnit, clientRequest: UserRequest) {
+    fun appendPlayerToGame(game: MatchMakerGameUnit, credentials: UserCredentials):Unit =
+            serviceCommunicator.appendPlayerToGame(game, credentials)
 
-    }
 
 }

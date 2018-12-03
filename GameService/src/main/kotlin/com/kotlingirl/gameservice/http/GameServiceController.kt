@@ -1,6 +1,9 @@
 package com.kotlingirl.gameservice.http
 
 import com.kotlingirl.gameservice.game.GameRepository
+import com.kotlingirl.serverconfiguration.elements.messages.GameServiceResponse
+import com.kotlingirl.serverconfiguration.elements.messages.UserCredentials
+import com.kotlingirl.serverconfiguration.elements.messages.UserRequestParameters
 import com.kotlingirl.serverconfiguration.proxies.gameservice.GameServiceControllerInterface
 import com.kotlingirl.serverconfiguration.util.extensions.logger
 import org.springframework.beans.factory.annotation.Autowired
@@ -15,10 +18,11 @@ class GameServiceController: GameServiceControllerInterface {
     @Autowired
     lateinit var gameRepository: GameRepository
 
-    //  todo make with json everywhere
-    override fun create(@RequestBody body: String): ResponseEntity<String> {
+    //  todo strange error while handle json
+    override fun create(@RequestBody parameters: UserRequestParameters): ResponseEntity<GameServiceResponse> {
         // todo
-        return ResponseEntity.ok().body("Haha, create data - $body")
+        log.info("Haha, create data - $parameters")
+        return ResponseEntity.ok().body(GameServiceResponse(0))
 //        log.info("Added request for $playerCount players")
 //        return when {
 //            playerCount < 2 -> ResponseEntity.badRequest().body("Too low player count")
@@ -32,9 +36,10 @@ class GameServiceController: GameServiceControllerInterface {
     }
 
 
-    override fun connect(@RequestBody body: String): ResponseEntity<String> {
+    override fun connect(@RequestBody credentials: UserCredentials): ResponseEntity<String> {
         // todo
-        return ResponseEntity.ok().body("Haha, connect data - $body")
+        log.info("Haha, connect data - $credentials")
+        return ResponseEntity.ok().build()
 //        return when {
 //            playerCount < 2 -> ResponseEntity.badRequest().body("Too low player count")
 //            playerCount > 4 -> ResponseEntity.badRequest().body("Too high player count")
@@ -44,15 +49,5 @@ class GameServiceController: GameServiceControllerInterface {
 //                ResponseEntity.ok(game.id.toString())
 //            }
 //        }
-    }
-
-    //  todo make with json everywhere
-    override fun start(@RequestBody body: String): ResponseEntity<String> {
-        // todo
-        return ResponseEntity.ok().body("Haha, start data - $body")
-//        val game = gameRepository.getGame(gameId)
-//                ?: return ResponseEntity.badRequest().body("Unknown game id - $gameId")
-//        game.start()
-//        return ResponseEntity.ok().build()
     }
 }

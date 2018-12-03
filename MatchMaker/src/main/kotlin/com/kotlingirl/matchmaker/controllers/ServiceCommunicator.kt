@@ -7,8 +7,8 @@ import com.kotlingirl.serverconfiguration.GlobalConstants.GAME_SERVICE_NAME_LOWE
 import com.kotlingirl.serverconfiguration.elements.InternalException
 import com.kotlingirl.serverconfiguration.elements.matchmaker.MatchMakerGameUnit
 import com.kotlingirl.serverconfiguration.elements.messages.GameServiceResponse
-import com.kotlingirl.serverconfiguration.elements.messages.UserRequest
-import com.kotlingirl.serverconfiguration.proxies.gameservice.GameServiceProxy
+import com.kotlingirl.serverconfiguration.elements.messages.UserCredentials
+import com.kotlingirl.serverconfiguration.elements.messages.UserRequestParameters
 import com.kotlingirl.serverconfiguration.util.extensions.fromJsonString
 import com.kotlingirl.serverconfiguration.util.extensions.logger
 import com.kotlingirl.serverconfiguration.util.extensions.toJsonHttpEntity
@@ -36,8 +36,7 @@ class ServiceCommunicator {
     @Autowired
     lateinit var loadBalancer: LoadBalancerClient
 
-    // todo use some settings in reqest
-    fun createCasualGame(request: UserRequest): MatchMakerGameUnit {
+    fun createCasualGame(parameters: UserRequestParameters?): MatchMakerGameUnit {
         val serviceInstance: ServiceInstance
         val response: ResponseEntity<String>
         try {
@@ -46,7 +45,7 @@ class ServiceCommunicator {
 
             response = restTemplate.postForEntity(
                     serviceInstance.uri.toString() + GAME_PATH + CREATE_PATH,
-                    request.toJsonHttpEntity(),
+                    (parameters ?: UserRequestParameters()).toJsonHttpEntity(),
                     String::class.java)
 
             log.info("Got response from $GAME_SERVICE_NAME with " +
@@ -61,8 +60,31 @@ class ServiceCommunicator {
 
         return MatchMakerGameUnit(
                 serviceInstance,
-                response.body?.fromJsonString(GameServiceResponse::class.java)?.id?.toIntOrNull()
+                response.body?.fromJsonString(GameServiceResponse::class.java)?.id
                         ?: throw InternalException(HttpStatus.INTERNAL_SERVER_ERROR, "Response with empty body")
         )
+    }
+
+    fun appendPlayerToGame(game: MatchMakerGameUnit, credentials: UserCredentials) {
+        val serviceInstance: ServiceInstance
+        val response: ResponseEntity<String>
+        try {
+            serviceInstance = loadBalancer.choose(GAME_SERVICE_NAME_LOWER)
+                    ?: throw InternalException(HttpStatus.INTERNAL_SERVER_ERROR, "Cant choose service to use")
+
+            response = restTemplate.postForEntity(
+                    serviceInstance.uri.toString() + GAME_PATH + CREATE_PATH,
+                    credentials.toJsonHttpEntity(),
+                    String::class.java)
+
+            log.info("Got response from $GAME_SERVICE_NAME with " +
+                    "body ${response.body ?: "Empty body"} and " +
+                    "response code ${response.statusCode}")
+        } catch (e: IllegalStateException) {
+            throw InternalException(HttpStatus.INTERNAL_SERVER_ERROR, "Cant choose service to use")
+        }
+        if (!response.statusCode.is2xxSuccessful)
+            throw InternalException(response.statusCode, "Request to $GAME_SERVICE_NAME " +
+                    "Ended with status ${response.statusCode} and message: ${response.body ?: "response was empty"}")
     }
 }

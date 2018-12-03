@@ -1,11 +1,9 @@
 package com.kotlingirl.gameservice.socket
 
-import io.rybalkinsd.kotlinbootcamp.game.Game
-import io.rybalkinsd.kotlinbootcamp.game.GameRepository
-import io.rybalkinsd.kotlinbootcamp.game.User
-import io.rybalkinsd.kotlinbootcamp.util.IntIdGen
-import io.rybalkinsd.kotlinbootcamp.util.logger
-import io.rybalkinsd.kotlinbootcamp.util.queryToMap
+import com.kotlingirl.gameservice.game.Game
+import com.kotlingirl.gameservice.game.GameRepository
+import com.kotlingirl.serverconfiguration.util.IntIdGen
+import com.kotlingirl.gameservice.game.User
 import org.springframework.beans.factory.annotation.Autowired
 import com.kotlingirl.serverconfiguration.util.extensions.logger
 import com.kotlingirl.serverconfiguration.util.extensions.queryToMap

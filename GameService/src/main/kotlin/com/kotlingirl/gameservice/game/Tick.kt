@@ -1,18 +1,17 @@
-package io.rybalkinsd.kotlinbootcamp.game
+package com.kotlingirl.gameservice.game
 
 
-import io.rybalkinsd.kotlinbootcamp.communication.Broker
-import io.rybalkinsd.kotlinbootcamp.communication.Data
-import io.rybalkinsd.kotlinbootcamp.communication.Message
-import io.rybalkinsd.kotlinbootcamp.communication.MoveData
-import io.rybalkinsd.kotlinbootcamp.communication.MoveMessage
-import io.rybalkinsd.kotlinbootcamp.communication.Topic
-import io.rybalkinsd.kotlinbootcamp.util.JsonHelper
-import io.rybalkinsd.kotlinbootcamp.util.logger
+import com.kotlingirl.gameservice.communication.Broker
+import com.kotlingirl.gameservice.communication.Data
+import com.kotlingirl.gameservice.communication.Message
+import com.kotlingirl.gameservice.communication.MoveData
+import com.kotlingirl.serverconfiguration.util.extensions.fromJsonString
+import com.kotlingirl.serverconfiguration.util.extensions.logger
+import com.kotlingirl.serverconfiguration.util.extensions.toJsonString
+import com.kotlingirl.gameservice.communication.Topic
 import org.springframework.web.socket.WebSocketSession
 import java.util.concurrent.ConcurrentLinkedDeque
 import java.util.concurrent.ConcurrentLinkedQueue
-import java.util.concurrent.ConcurrentSkipListSet
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.LockSupport
 
@@ -71,7 +70,7 @@ class Ticker {
              {
                 val pair = inputQueue.poll()
                 if (pair.second.topic == Topic.MOVE) {
-                    val moveData: MoveData = JsonHelper.fromJson(JsonHelper.toJson(pair.second.data))
+                    val moveData: MoveData = pair.second.data.toJsonString().fromJsonString()
                     val pawn = pawns[pair.first]
                     if(pawn != null) {
                         if (pawn.direction != moveData.direction) {

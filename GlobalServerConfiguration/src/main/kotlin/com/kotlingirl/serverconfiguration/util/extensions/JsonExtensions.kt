@@ -12,3 +12,6 @@ fun Any.toJsonString(): String = JSON.toJSONString(this)
  */
 fun <T : Any> String.fromJsonString(clazz: Class<T>): T =
         JSON.parseObject(replace("\\{\\s*\\}".toRegex(),"{\"\":\"\"}"), clazz)
+
+inline fun <reified T : Any> String.fromJsonString(): T =
+        JSON.parseObject(replace("\\{\\s*\\}".toRegex(),"{\"\":\"\"}"), T::class.java)

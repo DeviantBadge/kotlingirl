@@ -1,4 +1,4 @@
-package io.rybalkinsd.kotlinbootcamp.game
+package com.kotlingirl.gameservice.game
 
 val tileSize = 32
 

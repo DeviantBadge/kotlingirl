@@ -1,4 +1,4 @@
-package io.rybalkinsd.kotlinbootcamp.communication
+package com.kotlingirl.gameservice.communication
 
 data class Message(val topic: Topic, val data: Any)
 

@@ -2,7 +2,7 @@ var ClusterSetting = function () {
     this.gameServer = {
         protocol: 'http',
         host: 'localhost',
-        port: '8080',
+        port: '8090',
         path: '/events/connect'
     };
 

@@ -54,7 +54,7 @@ class Game(val count: Int) {
     }
 
     fun receive(session: WebSocketSession, msg: String){
-        log.info("RECEIVED: $msg")
+//        log.info("RECEIVED: $msg")
         val message: Message = msg.fromJsonString()
         ticker.input(session, message)
     }

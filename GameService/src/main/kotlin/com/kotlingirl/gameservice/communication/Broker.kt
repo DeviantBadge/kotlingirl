@@ -24,6 +24,7 @@ class Broker(private val connectionPool: ConnectionPool) {
 
     fun broadcast(topic: Topic, data: Any) {
         val message = Message(topic, data).toJsonString()
+        log.info(message)
         connectionPool.broadcast(message)
     }
 

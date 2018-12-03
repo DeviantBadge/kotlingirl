@@ -32,12 +32,12 @@ class Ticker {
             //act(FRAME_TIME)
             val elapsed = System.currentTimeMillis() - started
             if (elapsed < FRAME_TIME) {
-                log.info("All tick finish at {} ms", elapsed)
+//                log.info("All tick finish at {} ms", elapsed)
                 LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(FRAME_TIME - elapsed))
             } else {
-                log.warn("tick lag {} ms", elapsed - FRAME_TIME)
+//                log.warn("tick lag {} ms", elapsed - FRAME_TIME)
             }
-            log.info("{}: tick ", tickNumber)
+//            log.info("{}: tick ", tickNumber)
             tickNumber++
             if (data != null) {
                 broker.broadcast(data.first, data.second)
@@ -86,6 +86,7 @@ class Ticker {
             if (lst.isNotEmpty()) {
                 log.info("last state of pawn ${lst.last()}")
                 val replica = Data(lst, false)
+                log.info(replica.toString())
                 return Pair(Topic.REPLICA, replica)
             } else {
                 return null

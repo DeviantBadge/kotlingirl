@@ -1,8 +1,20 @@
 package com.kotlingirl.serverconfiguration.util.extensions
 
 import com.alibaba.fastjson.JSON
+import com.alibaba.fastjson.serializer.SerializerFeature
 
-fun Any.toJsonString(): String = JSON.toJSONString(this)
+/*
+internal object JsonHelper {
+    val mapper = ObjectMapper().registerKotlinModule()
+
+    fun toJson(data: Any): String = mapper.writeValueAsString(data)
+
+    inline fun <reified T: Any> fromJson(json: String): T =
+            mapper.readValue(json)
+}
+*/
+
+fun Any.toJsonString(): String = JSON.toJSONString(this, SerializerFeature.DisableCircularReferenceDetect)
 
 /**
  * Reason why i done this, because fastjson skips default constructor if it is kotlin class

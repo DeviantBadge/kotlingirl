@@ -144,7 +144,8 @@ MainMenu.prototype.toggleWindow = function () {
 
 MainMenu.prototype.playCasual = function () {
     console.log("Wanna play casual match? hahahahahahaaaaaaaa");
-    const gameID = gMatchMaker.getSessionId(this.casualParameters);
+    // const gameID = gMatchMaker.getSessionId(this.casualParameters);
+    const gameID = 0;
     if (gameID !== null) {
         this.toggleWindow();
         GM.startGame(gameID);

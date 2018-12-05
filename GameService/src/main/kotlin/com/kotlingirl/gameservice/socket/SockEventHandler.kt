@@ -16,12 +16,8 @@ import java.util.concurrent.ConcurrentHashMap
 
 @Service
 class SockEventHandler : TextWebSocketHandler() {
-    val log = logger()
-
     @Autowired
     lateinit var gameRepository: GameRepository
-
-    val idGen = IntIdGen()
 
     @Volatile
     var sessions2games = ConcurrentHashMap<WebSocketSession, Game>()
@@ -44,7 +40,7 @@ class SockEventHandler : TextWebSocketHandler() {
     }
 
     override fun handleTextMessage(session: WebSocketSession, message: TextMessage) {
-//        logger().info("Got message - ${message.payload}")
+        logger().info("Got message - ${message.payload}")
         sessions2games[session]?.receive(session, message.payload)
 
     }
@@ -52,5 +48,10 @@ class SockEventHandler : TextWebSocketHandler() {
     override fun afterConnectionClosed(session: WebSocketSession, closeStatus: CloseStatus) {
         logger().info("Socket Closed: [" + closeStatus.code + "] " + closeStatus.reason + "; socket id [" + session.id + "]")
         super.afterConnectionClosed(session, closeStatus)
+    }
+
+    companion object {
+        val log = logger()
+        val idGen = IntIdGen()
     }
 }

@@ -13,7 +13,7 @@ MessageBroker.prototype.handleReplica = function (msg) {
     // console.log(msg);
     // var gameObjects = JSON.parse(msg.data);
     var gameObjects = msg.data.objects;
-    // console.log(gameObjects);
+    console.log(gameObjects);
     GM.game.gc(gameObjects);
 };
 

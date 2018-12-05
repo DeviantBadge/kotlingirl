@@ -13,7 +13,7 @@ interface Collider {
 /**
  * 2D point with integer coordinates
  */
-data class Point(val x: Int = 0, val y: Int = 0) : Collider {
+data class Point(var x: Int = 0, var y: Int = 0) : Collider {
     override fun isColliding(other: Collider) = when (other::class) {
         Point::class -> this == other
         Bar::class -> this in other as Bar
@@ -29,8 +29,8 @@ data class Point(val x: Int = 0, val y: Int = 0) : Collider {
  * (It does not matter, which opposite corners you choose to define bar)
  */
 open class Bar(firstCornerX: Int, firstCornerY: Int, secondCornerX: Int, secondCornerY: Int) : Collider {
-    protected var leftBottomCorner = Point(min(firstCornerX, secondCornerX), min(firstCornerY, secondCornerY))
-    protected var rightTopCorner = Point(max(firstCornerX, secondCornerX), max(firstCornerY, secondCornerY))
+    var leftBottomCorner = Point(min(firstCornerX, secondCornerX), min(firstCornerY, secondCornerY))
+    var rightTopCorner = Point(max(firstCornerX, secondCornerX), max(firstCornerY, secondCornerY))
 
     constructor(firstCorner: Point, secondCorner: Point) :
             this(firstCorner.x, firstCorner.y, secondCorner.x, secondCorner.y)

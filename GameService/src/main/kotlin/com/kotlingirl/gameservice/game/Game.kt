@@ -9,7 +9,9 @@ import org.springframework.stereotype.Component
 import com.kotlingirl.gameservice.communication.Broker
 import com.kotlingirl.gameservice.communication.ConnectionPool
 import com.kotlingirl.gameservice.communication.Message
+import com.kotlingirl.gameservice.communication.Replica
 import com.kotlingirl.gameservice.communication.MessageManager
+import com.kotlingirl.gameservice.communication.User
 import com.kotlingirl.serverconfiguration.util.extensions.fromJsonString
 import org.springframework.web.socket.WebSocketSession
 
@@ -22,7 +24,7 @@ class Game(val count: Int) {
     }
     val id = 0//idGen.getId()
     val ticker = Ticker()
-    var connectionPool = ConnectionPool()
+    val connectionPool = ConnectionPool()
     lateinit var broker: Broker
     var mechanics = Mechanics()
     lateinit var messageManager: MessageManager

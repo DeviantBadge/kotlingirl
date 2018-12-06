@@ -1,8 +1,21 @@
 package com.kotlingirl.gameservice.communication
-
 import com.kotlingirl.gameservice.game.Point
 
-data class Message(val topic: Topic, val data: Data)
+data class Replica(val topic: Topic, val data: Data)
 data class Data(val objects: List<Any>, val gameOver: Boolean)
+data class Message(val topic: Topic, val data: MoveData)
+data class MoveData(val direction: String)
 data class User(val id: Int, val name: String)
-data class PawnDto(var id: Int, var position: Point = Point(0, 0), var direction: String = "", val type: String = "Pawn")
+data class PawnDto(var id: Int, var position: Point = Point(0, 0),
+                   var direction: String = "", val type: String = "Pawn",
+                   var alive: Boolean = true) {
+    override fun equals(other: Any?): Boolean {
+        if (other == null) return false
+        if (other::class == PawnDto::class) return (other as PawnDto).id == id
+        return false
+    }
+
+    override fun hashCode(): Int {
+        return super.hashCode()
+    }
+}

@@ -1,9 +1,9 @@
 package com.kotlingirl.gameservice.socket
 
+import com.kotlingirl.gameservice.communication.User
 import com.kotlingirl.gameservice.game.Game
 import com.kotlingirl.gameservice.game.GameRepository
 import com.kotlingirl.serverconfiguration.util.IntIdGen
-import com.kotlingirl.gameservice.game.User
 import org.springframework.beans.factory.annotation.Autowired
 import com.kotlingirl.serverconfiguration.util.extensions.logger
 import com.kotlingirl.serverconfiguration.util.extensions.queryToMap

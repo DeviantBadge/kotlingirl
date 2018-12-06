@@ -1,8 +1,7 @@
 package com.kotlingirl.gameservice.game
 
 
-import com.kotlingirl.gameservice.communication.Broker
-import com.kotlingirl.gameservice.communication.Message
+import com.kotlingirl.gameservice.communication.Replica
 import com.kotlingirl.gameservice.communication.MessageManager
 import com.kotlingirl.serverconfiguration.util.extensions.logger
 import org.springframework.web.socket.WebSocketSession
@@ -13,20 +12,14 @@ import java.util.concurrent.locks.LockSupport
 class Ticker {
     private val tickables = ConcurrentLinkedDeque<Tickable>()
     var tickNumber: Long = 0
-
-//    var inputQueue = ConcurrentLinkedQueue<Pair<WebSocketSession, Message> >()
     var pawns = HashMap<WebSocketSession, Pawn>()
-    var tiles = HashMap<Position, Tile>()
-
-
-//    lateinit var broker: Broker
+    var tiles = HashMap<Point, Tile>()
     lateinit var messageManager: MessageManager
 
     fun gameLoop() {
         while (!Thread.currentThread().isInterrupted) {
             val started = System.currentTimeMillis()
-//            var data = consumeMessage()
-            val message = act(FRAME_TIME)
+            val replica = act(FRAME_TIME)
             val elapsed = System.currentTimeMillis() - started
             if (elapsed < FRAME_TIME) {
 //                log.info("All tick finish at {} ms", elapsed)
@@ -34,7 +27,7 @@ class Ticker {
             } else {
 //                log.warn("tick lag {} ms", elapsed - FRAME_TIME)
             }
-            broadcast(message)
+            broadcast(replica)
 //            log.info("{}: tick ", tickNumber)
             tickNumber++
         }
@@ -48,20 +41,20 @@ class Ticker {
         tickables.remove(tickable)
     }
 
-    private fun act(elapsed: Long): Message? {
+    private fun act(elapsed: Long): Replica? {
 //        tickables.forEach { it.tick(elapsed) }
-        return messageManager.consume()
+        return messageManager.makeReplica(elapsed)
     }
 
-    private fun broadcast(message: Message?) {
-        messageManager.broadcastMessage(message)
+    private fun broadcast(replica: Replica?) {
+        messageManager.broadcastReplica(replica)
     }
 
     fun addPawn(session: WebSocketSession, pawn: Pawn) {
         pawns[session] = pawn
     }
 
-    fun makeBG() {
+   /* fun makeBG() {
         for (i in 0..16){
             tiles[Position(0, i * tileSize)] = Wall(i, Point(0, i * tileSize))
             tiles[Position(26 * tileSize, i * tileSize)] = Wall(i + 17, Point(26 * tileSize, i * tileSize))
@@ -99,7 +92,7 @@ class Ticker {
             }
             else -> pawn.nearestTile = null
         }
-    }
+    }*/
 
     companion object {
         private val log = logger()

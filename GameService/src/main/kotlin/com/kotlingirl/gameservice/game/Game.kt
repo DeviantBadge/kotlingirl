@@ -11,6 +11,8 @@ import com.kotlingirl.gameservice.communication.ConnectionPool
 import com.kotlingirl.gameservice.communication.Message
 import com.kotlingirl.gameservice.communication.Replica
 import com.kotlingirl.gameservice.communication.MessageManager
+import com.kotlingirl.gameservice.communication.MoveMessage
+import com.kotlingirl.gameservice.communication.Topic
 import com.kotlingirl.gameservice.communication.User
 import com.kotlingirl.serverconfiguration.util.extensions.fromJsonString
 import org.springframework.web.socket.WebSocketSession
@@ -46,7 +48,12 @@ class Game(val count: Int) {
     fun receive(session: WebSocketSession, msg: String){
 //        log.info("RECEIVED: $msg")
         val message: Message = msg.fromJsonString()
-        messageManager.addMessage(session, message)
+        if(message.topic == Topic.MOVE) {
+            val move : MoveMessage = msg.fromJsonString()
+            messageManager.addMessage(session, move)
+        } else {
+            messageManager.addMessage(session, message)
+        }
     }
 
     private fun gameInit() {

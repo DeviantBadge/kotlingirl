@@ -15,6 +15,7 @@ class Mechanics {
     val tileSize = 32
     val field = Matrix()
     var pawns = HashMap<WebSocketSession, Pawn>()
+    var bombs = mutableListOf<Bomb>()
 
     fun createPawn(session: WebSocketSession, user: User) {
         pawns[session] = Pawn(idGen.getId())
@@ -41,8 +42,8 @@ class Mechanics {
         return neighbours.map {
             val cell = field[it.x][it.y]
             if (cell.isNotEmpty() && cell.last() is Tile) {
-                val bar = Bar(Point(pawn.bar.leftBottomCorner.x - 1, pawn.bar.leftBottomCorner.y - 1),
-                                Point(pawn.bar.rightTopCorner.x + 1, pawn.bar.rightTopCorner.y + 1))
+                val bar = Bar(Point(pawn.bar.leftBottomCorner.x - pawn.velocity, pawn.bar.leftBottomCorner.y - pawn.velocity),
+                                Point(pawn.bar.rightTopCorner.x + pawn.velocity, pawn.bar.rightTopCorner.y + pawn.velocity))
                 bar.isColliding(Bar(coordToPoint(it), Point(coordToPoint(it).x + 31, coordToPoint(it).y + 31)))
             }
             else
@@ -73,6 +74,18 @@ class Mechanics {
         return point
     }
 
+    fun plantBomb(session: WebSocketSession): Bomb {
+        var bomb = Bomb(0, Point(0, 0))
+        val pawn = pawns[session]
+        if (pawn != null) {
+            with(pawn) {
+                bomb = Bomb(idGen.getId(), Point(position.x, position.y))
+            }
+        }
+        bombs.add(bomb)
+        return bomb
+    }
+
     private fun coordToPoint(coord: Point): Point  = Point(coord.x * tileSize, coord.y * tileSize)
 
     private fun initMatrix() {
@@ -88,6 +101,7 @@ class Mechanics {
                 if (i == 0 || j == 0 || i == field.size - 1 || j == field[i].size - 1)
                     field[i][j] = mutableListOf(Wall(idGen.getId(), Point(i * tileSize, j * tileSize)))
             }
+//        field[2][10].add(Wall(idGen.getId(), Point(2 * tileSize, 10 * tileSize)))
     }
 
     companion object {

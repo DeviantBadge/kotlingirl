@@ -1,5 +1,6 @@
 package com.kotlingirl.gameservice.communication
 
+import com.kotlingirl.gameservice.game.Bomb
 import com.kotlingirl.gameservice.game.Mechanics
 import com.kotlingirl.gameservice.game.Pawn
 import com.kotlingirl.gameservice.game.Tile
@@ -24,7 +25,7 @@ class MessageManager(val mechanics: Mechanics, val broker: Broker) {
                 val pair = inputQueue.poll()
                 when (pair.second.topic) {
                     Topic.MOVE -> {
-                        val moveData: MoveData = pair.second.data
+                        val moveData: MoveData = pair.second.data as MoveData
                         val pawn = mechanics.pawns[pair.first]
                         stopPawns.remove(pawn)
                         if (pawn != null && !(objects.contains(pawn.dto))) {
@@ -37,7 +38,8 @@ class MessageManager(val mechanics: Mechanics, val broker: Broker) {
                     }
 
                     Topic.PLANT_BOMB -> {
-
+                        val bomb = mechanics.plantBomb(pair.first)
+                        objects.add(0, bomb.dto)
                     }
 
                     Topic.JUMP -> {
@@ -49,6 +51,7 @@ class MessageManager(val mechanics: Mechanics, val broker: Broker) {
             }
         }
         stopPawns.forEach { it.direction = "" ; objects.add(it.dto) }
+        mechanics.bombs.forEach { objects.add(it.dto) }
         return if (objects.isNotEmpty()) {
             log.info("last state of pawn ${objects}")
             Replica(Topic.REPLICA, Data(objects, false))
@@ -69,12 +72,11 @@ class MessageManager(val mechanics: Mechanics, val broker: Broker) {
         mechanics.initPawns()
         val replicas = mutableListOf<Any>()
         mechanics.field.forEach { line ->
-            line.forEach { if (it.isNotEmpty())
-                when (it.last()) {
-                    is Pawn -> replicas.add((it.last() as Pawn).dto)
-                    is Tile -> replicas.add(it.last())
-                }
-            } }
+            line.forEach { if (it.isNotEmpty() && it.last() is Tile)
+                    replicas.add(it.last() as Tile)
+            }
+        }
+        mechanics.pawns.values.forEach { replicas.add(it.dto) }
         broker.broadcast(Topic.REPLICA, Data(replicas, false))
     }
 

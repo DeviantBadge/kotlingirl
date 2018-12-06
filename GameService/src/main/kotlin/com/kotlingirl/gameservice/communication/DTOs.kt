@@ -3,10 +3,11 @@ import com.kotlingirl.gameservice.game.Point
 
 data class Replica(val topic: Topic, val data: Data)
 data class Data(val objects: List<Any>, val gameOver: Boolean)
-data class Message(val topic: Topic, val data: MoveData)
+open class Message(open val topic: Topic, open val data: Any)
+data class MoveMessage(override val topic: Topic, override val data: MoveData): Message(topic, Any())
 data class MoveData(val direction: String)
 data class User(val id: Int, val name: String)
-data class PawnDto(var id: Int, var position: Point = Point(0, 0),
+data class PawnDto(val id: Int, var position: Point = Point(0, 0),
                    var direction: String = "", val type: String = "Pawn",
                    var alive: Boolean = true) {
     override fun equals(other: Any?): Boolean {
@@ -19,3 +20,4 @@ data class PawnDto(var id: Int, var position: Point = Point(0, 0),
         return super.hashCode()
     }
 }
+data class BombDto(val id: Int, val position: Point, val type: String = "Bomb")

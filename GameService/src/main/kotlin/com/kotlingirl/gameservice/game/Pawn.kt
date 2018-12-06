@@ -4,7 +4,7 @@ import com.kotlingirl.gameservice.communication.PawnDto
 
 class Pawn(val id: Int) : Tickable {
 
-    private var position = Point(0, 0)
+    var position = Point(0, 0)
     val pawnSize = 32
     val halfpawnSize = pawnSize / 2
     val quartPawnSize = pawnSize / 4
@@ -16,7 +16,7 @@ class Pawn(val id: Int) : Tickable {
         }
     var coords = mutableSetOf<Point>()
     var bar = Bar(position, position)
-    val velocity = 1
+    val velocity = 2
 
     override fun tick(elapsed: Long) {
         if (direction.isNotEmpty()) {

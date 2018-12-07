@@ -25,15 +25,18 @@ buildscript {
     }
 }
 
-apply(plugin = "kotlin")
-apply(plugin = "kotlin-spring")
-apply(plugin = "idea")
-apply(plugin = "org.springframework.boot")
-apply(plugin = "io.spring.dependency-management")
-
 plugins {
     java
 }
+
+apply(plugin = "java-library")
+apply(plugin = "java")
+apply(plugin = "idea")
+
+apply(plugin = "kotlin")
+apply(plugin = "kotlin-spring")
+apply(plugin = "org.springframework.boot")
+apply(plugin = "io.spring.dependency-management")
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
@@ -41,12 +44,11 @@ tasks.withType<KotlinCompile> {
 }
 
 dependencies {
-    implementation(project(":GlobalServerConfiguration"))
-
-    implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-server")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.springframework.boot:spring-boot-devtools")
+
+    implementation(springCloud("netflix-eureka-server"))
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
@@ -57,3 +59,9 @@ configure<DependencyManagementExtension> {
         mavenBom("org.springframework.cloud:spring-cloud-dependencies:${ext["springCloudVersion"]}")
     }
 }
+
+fun springBoot(module: String, version: String? = null) =
+        "org.springframework.boot:spring-boot-starter-$module${version?.let { ":$version" } ?: ""}"
+
+fun springCloud(module: String, version: String? = null) =
+        "org.springframework.cloud:spring-cloud-starter-$module${version?.let { ":$version" } ?: ""}"

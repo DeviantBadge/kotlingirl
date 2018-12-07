@@ -44,7 +44,7 @@ class MatchMakerController : MatchMakerControllerInterface {
         credentials == null -> throw InternalException(HttpStatus.BAD_REQUEST, "Request without credentials")
         credentials.name == null -> throw InternalException(HttpStatus.BAD_REQUEST, "Request without name")
         credentials.name!!.length < 3 -> throw InternalException(HttpStatus.BAD_REQUEST, "Too short name")
-        credentials.name!!.length ?: 0 > 20 -> throw InternalException(HttpStatus.BAD_REQUEST, "Too Long Name")
+        credentials.name!!.length > 20 -> throw InternalException(HttpStatus.BAD_REQUEST, "Too Long Name")
         else -> {
         }
     }

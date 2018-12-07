@@ -25,24 +25,37 @@ buildscript {
     }
 }
 
-apply(plugin = "kotlin")
-apply(plugin = "kotlin-spring")
-apply(plugin = "idea")
-apply(plugin = "org.springframework.boot")
-apply(plugin = "io.spring.dependency-management")
-
 plugins {
     java
+    application
 }
+
+application {
+    mainClassName = "com.kotlingirl.gameservice.GameServiceApplicationKt"
+}
+
+apply(plugin = "java-library")
+apply(plugin = "java")
+apply(plugin = "idea")
+
+apply(plugin = "kotlin")
+apply(plugin = "kotlin-spring")
+apply(plugin = "org.springframework.boot")
+apply(plugin = "io.spring.dependency-management")
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
     kotlinOptions.freeCompilerArgs = listOf("-Xjsr305=strict")
 }
 
-dependencies {
-    implementation(project(":GlobalServerConfiguration"))
+val jar by tasks.getting(Jar::class) {
+    manifest {
+        attributes["Main-Class"] = "com.example.MainKt"
+    }
+}
 
+dependencies {
+    implementation(project(":kotlingirl-configuration"))
     implementation("io.github.rybalkinsd", "kohttp", "0.3.1")
     implementation("org.slf4j", "slf4j-api", "1.7.25")
     implementation("com.alibaba", "fastjson", "1.2.54")
@@ -69,8 +82,8 @@ configure<DependencyManagementExtension> {
     }
 }
 
-fun DependencyHandler.springBoot(module: String, version: String? = null) =
+fun springBoot(module: String, version: String? = null) =
         "org.springframework.boot:spring-boot-starter-$module${version?.let { ":$version" } ?: ""}"
 
-fun DependencyHandler.springCloud(module: String, version: String? = null) =
+fun springCloud(module: String, version: String? = null) =
         "org.springframework.cloud:spring-cloud-starter-$module${version?.let { ":$version" } ?: ""}"

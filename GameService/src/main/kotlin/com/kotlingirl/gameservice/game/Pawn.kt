@@ -44,10 +44,3 @@ data class Pawn(val id: Int, var position: Position, var alive: Boolean, var dir
 data class Position(var x: Int, var y: Int)
 
 data class User(val id: Int, val name: String)
-
-fun main(args: Array<String>) {
-    val pawn = Pawn(12, Position(10,10),true, "RIGHT")
-    println(listOf(pawn, pawn, pawn))
-    println(listOf(pawn, pawn, pawn).toJsonString())
-    println(listOf(pawn, pawn, pawn).toJsonString().fromJsonString(List::class.java))
-}

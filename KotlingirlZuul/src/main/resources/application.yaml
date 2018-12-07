@@ -1,0 +1,41 @@
+server:
+  port: 8762
+
+
+spring:
+  application:
+    name: KotlingirlZuul
+
+  datasource:
+    url: jdbc:postgresql://54.224.37.210:5432/chatdb_atom9
+    username: atom9
+    password: atom9
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    properties:
+      hibernate:
+        current_session_context_class: thread
+        use_sql_comments: true
+        format_sql: true
+        temp:
+          use_jdbc_metadata_defaults: false
+        ddl-auto: update
+
+      database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+
+eureka:
+  client:
+    fetch-registry: true
+    service-url:
+      default-zone: http://localhost:8761/eureka
+
+
+ping-server:
+  ribbon:
+    eureka:
+      enabled: false # do not confirm with eureka
+
+zuul:
+  ignoredServices: '*'

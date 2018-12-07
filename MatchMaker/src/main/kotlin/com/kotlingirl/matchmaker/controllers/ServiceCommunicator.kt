@@ -1,5 +1,6 @@
 package com.kotlingirl.matchmaker.controllers
 
+import com.kotlingirl.serverconfiguration.GameServiceConstants.APPEND_PLAYER_PATH
 import com.kotlingirl.serverconfiguration.GameServiceConstants.CREATE_PATH
 import com.kotlingirl.serverconfiguration.GameServiceConstants.GAME_PATH
 import com.kotlingirl.serverconfiguration.GlobalConstants.GAME_SERVICE_NAME
@@ -12,6 +13,7 @@ import com.kotlingirl.serverconfiguration.elements.messages.UserRequestParameter
 import com.kotlingirl.serverconfiguration.util.extensions.fromJsonString
 import com.kotlingirl.serverconfiguration.util.extensions.logger
 import com.kotlingirl.serverconfiguration.util.extensions.toJsonHttpEntity
+import com.netflix.discovery.EurekaClient
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.cloud.client.ServiceInstance
@@ -39,12 +41,13 @@ class ServiceCommunicator {
     fun createCasualGame(parameters: UserRequestParameters?): MatchMakerGameUnit {
         val serviceInstance: ServiceInstance
         val response: ResponseEntity<String>
+        log.error(discoveryClient.getInstances("localhost:$GAME_SERVICE_NAME_LOWER:8090}").toString())
         try {
             serviceInstance = loadBalancer.choose(GAME_SERVICE_NAME_LOWER)
                     ?: throw InternalException(HttpStatus.INTERNAL_SERVER_ERROR, "Cant choose service to use")
-
+            log.error(serviceInstance.instanceId)
             response = restTemplate.postForEntity(
-                    serviceInstance.uri.toString() + GAME_PATH + CREATE_PATH,
+                    "http://gameservice:d5cc6203ff377e3c76695021738ffbb1:-770878734$GAME_PATH$CREATE_PATH",
                     (parameters ?: UserRequestParameters()).toJsonHttpEntity(),
                     String::class.java)
 
@@ -52,6 +55,7 @@ class ServiceCommunicator {
                     "body ${response.body ?: "Empty body"} and " +
                     "response code ${response.statusCode}")
         } catch (e: IllegalStateException) {
+            log.info("${e::class.java.simpleName} and message ${e.message}")
             throw InternalException(HttpStatus.INTERNAL_SERVER_ERROR, "Cant choose service to use")
         }
         if (!response.statusCode.is2xxSuccessful)
@@ -73,7 +77,7 @@ class ServiceCommunicator {
                     ?: throw InternalException(HttpStatus.INTERNAL_SERVER_ERROR, "Cant choose service to use")
 
             response = restTemplate.postForEntity(
-                    serviceInstance.uri.toString() + GAME_PATH + CREATE_PATH,
+                    serviceInstance.uri.toString() + GAME_PATH + APPEND_PLAYER_PATH,
                     credentials.toJsonHttpEntity(),
                     String::class.java)
 

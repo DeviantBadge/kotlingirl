@@ -1,62 +1,66 @@
 import org.gradle.internal.impldep.aQute.bnd.osgi.Analyzer
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
+import java.net.URI
 group = "io.rybalkinsd"
 version = "1.0-SNAPSHOT"
-
-plugins {
-    val ktVersion = "1.2.71"
-    kotlin("jvm") version ktVersion
-
-    // spring-related
-    id("org.jetbrains.kotlin.plugin.spring") version ktVersion
-    id("org.springframework.boot") version "2.0.5.RELEASE"
-    id("io.spring.dependency-management") version "1.0.5.RELEASE"
-}
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
-}
 
 repositories {
     jcenter()
     mavenCentral()
+    maven { url = URI("https://repo.spring.io/milestone") }
 }
 
-val ktlint by configurations.creating
+buildscript {
+    val kotlinVersion = "1.3.0"
+    val springBootVersion = "2.1.0.RELEASE"
+
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
+        classpath("org.jetbrains.kotlin:kotlin-allopen:${kotlinVersion}")
+    }
+}
+
+plugins {
+    java
+}
+
+apply(plugin = "java-library")
+apply(plugin = "java")
+apply(plugin = "idea")
+
+apply(plugin = "kotlin")
+apply(plugin = "kotlin-spring")
+apply(plugin = "org.springframework.boot")
+apply(plugin = "io.spring.dependency-management")
+
+tasks.withType<KotlinCompile> {
+    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.freeCompilerArgs = listOf("-Xjsr305=strict")
+}
 
 dependencies {
-    compile(kotlin("stdlib-jdk8"))
-    compile(kotlin("reflect"))
-    compile("io.github.rybalkinsd", "kohttp", "0.3.1")
-    compile("org.slf4j", "slf4j-api", "1.7.25")
+    implementation(kotlin("stdlib-jdk8"))
+    implementation(kotlin("reflect"))
+    implementation("io.github.rybalkinsd", "kohttp", "0.3.1")
+    implementation("org.slf4j", "slf4j-api", "1.7.25")
     // https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-openfeign
-    compile("org.springframework.cloud",
+    implementation("org.springframework.cloud",
             "spring-cloud-starter-openfeign",
             "2.0.2.RELEASE") // Greenwich.M3
 
-    compile(spring("web"))
-    compile(spring("actuator"))
+    implementation(springBoot("web"))
+    implementation(springBoot("actuator"))
 
-    testCompile("junit", "junit", "4.12")
-    testCompile(spring("test"))
-
-    ktlint("com.github.shyiko", "ktlint", "0.28.0")
+    testImplementation("junit", "junit", "4.12")
+    testImplementation(springBoot("test"))
 }
 
-tasks {
-    val ktlint by creating(JavaExec::class) {
-        group = "verification"
-        description = "Check Kotlin code style."
-        main = "com.github.shyiko.ktlint.Main"
-        classpath = ktlint
-        args = listOf("src/**/*.kt")
-    }
+fun springBoot(module: String, version: String? = null) =
+        "org.springframework.boot:spring-boot-starter-$module${version?.let { ":$version" } ?: ""}"
 
-    "check" {
-        dependsOn(ktlint)
-    }
-}
-
-fun DependencyHandler.spring(module: String, version: String? = null) =
-    "org.springframework.boot:spring-boot-starter-$module${version?.let { ":$version" } ?: ""}"
+fun springCloud(module: String, version: String? = null) =
+        "org.springframework.cloud:spring-cloud-starter-$module${version?.let { ":$version" } ?: ""}"

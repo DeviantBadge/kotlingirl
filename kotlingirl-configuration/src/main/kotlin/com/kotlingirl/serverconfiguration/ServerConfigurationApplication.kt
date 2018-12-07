@@ -1,0 +1,3 @@
+package com.kotlingirl.serverconfiguration
+
+class ServerConfigurationApplication

@@ -1,6 +1,7 @@
 package com.kotlingirl.matchmaker.controllers
 
 import com.kotlingirl.serverconfiguration.MatchMakerConstants
+import com.kotlingirl.matchmaker.service.UserService
 import com.kotlingirl.serverconfiguration.elements.InternalException
 import com.kotlingirl.serverconfiguration.elements.messages.MatchMakerGameResponse
 import com.kotlingirl.serverconfiguration.elements.messages.UserCredentials

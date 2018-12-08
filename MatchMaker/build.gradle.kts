@@ -23,6 +23,7 @@ buildscript {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
         classpath("org.jetbrains.kotlin:kotlin-allopen:${kotlinVersion}")
+        classpath("org.jetbrains.kotlin:kotlin-noarg:${kotlinVersion}")
     }
 }
 
@@ -35,6 +36,7 @@ apply(plugin = "java")
 apply(plugin = "idea")
 
 apply(plugin = "kotlin")
+apply(plugin = "kotlin-jpa")
 apply(plugin = "kotlin-spring")
 apply(plugin = "org.springframework.boot")
 apply(plugin = "io.spring.dependency-management")
@@ -57,6 +59,10 @@ dependencies {
 
     implementation(springBoot("web"))
     implementation(springBoot("actuator"))
+    implementation(springBoot("data-jpa"))
+    implementation(springBoot("data-rest"))
+
+
 
     implementation(springCloud("netflix-ribbon"))
     implementation(springCloud("openfeign"))

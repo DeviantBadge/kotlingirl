@@ -7,5 +7,6 @@ object MatchMakerConstants {
     const val PLAY_PATH = "/play"
     const val CASUAL_PATH = "/casual"
     const val RANKED_PATH = "/ranked"
+    const val USER_PATH = "/users"
 
 }

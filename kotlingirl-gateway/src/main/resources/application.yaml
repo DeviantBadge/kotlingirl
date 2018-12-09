@@ -1,0 +1,39 @@
+server:
+  port: 8762
+
+
+spring:
+  application:
+    name: kotlingirl-gateway
+
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+
+      routes:
+        - id: websocket_sockjs_route
+          uri: http://not.matter.org
+          predicates:
+            - Path=/events/connect
+          filters:
+            - GameServiceFilter
+
+eureka:
+  client:
+    fetch-registry: true
+    service-url:
+      default-zone: http://localhost:8761/eureka
+
+
+ping-server:
+  ribbon:
+    eureka:
+      enabled: false # do not confirm with eureka
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

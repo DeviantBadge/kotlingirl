@@ -9,10 +9,10 @@
 
 rootProject.name = "kotlingirl"
 
-include(":Front")
-include(":MatchMaker")
 include(":GameService")
 include(":kotlingirl-configuration")
-include(":KotlingirlRegistry")
-include(":KotlingirlGateway")
-include(":KotlingirlEureka")
+include(":kotlingirl-eureka")
+include(":kotlingirl-front")
+include(":kotlingirl-gateway")
+include(":kotlingirl-matchmaker")
+include(":kotlingirl-registry")

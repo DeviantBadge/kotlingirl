@@ -10,7 +10,6 @@ import com.kotlingirl.serverconfiguration.loadbalance.RibbonConfiguration
 
 
 @EnableEurekaClient
-@RibbonClient(name = MATCHMAKER_RIBBON_CLIENT_NAME, configuration = [RibbonConfiguration::class])
 @SpringBootApplication(scanBasePackageClasses = [KotlingirlRegistryApplication::class, ServerConfigurationApplication::class])
 class KotlingirlRegistryApplication
 

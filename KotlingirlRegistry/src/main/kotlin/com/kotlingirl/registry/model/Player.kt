@@ -1,4 +1,4 @@
-package com.kotlingirl.matchmaker.model
+package com.kotlingirl.registry.model
 
 import java.util.*
 import javax.persistence.*

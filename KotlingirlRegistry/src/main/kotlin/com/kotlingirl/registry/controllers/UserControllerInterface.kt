@@ -1,17 +1,17 @@
-package com.kotlingirl.serverconfiguration.proxies.matchmaker
+package com.kotlingirl.registry.controllers
 
+import com.kotlingirl.registry.model.Player
 import com.kotlingirl.serverconfiguration.MatchMakerConstants
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import java.util.*
 
 @RequestMapping(MatchMakerConstants.USER_PATH)
 interface UserControllerInterface {
     @PostMapping(
             path = ["/registration"],
             consumes = [MediaType.APPLICATION_JSON_VALUE])
-    fun registration(@RequestBody login: String, @RequestBody password: String): com.kotlingirl.matchmaker.model.Player
+    fun registration(@RequestBody login: String, @RequestBody password: String): Player
 
     @GetMapping(
             path = ["/login"],

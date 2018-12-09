@@ -1,23 +1,16 @@
 package com.kotlingirl.matchmaker.controllers
 
-import com.kotlingirl.serverconfiguration.MatchMakerConstants
-import com.kotlingirl.matchmaker.service.UserService
 import com.kotlingirl.serverconfiguration.elements.InternalException
 import com.kotlingirl.serverconfiguration.elements.messages.MatchMakerGameResponse
 import com.kotlingirl.serverconfiguration.elements.messages.UserCredentials
 import com.kotlingirl.serverconfiguration.elements.messages.UserRequest
 import com.kotlingirl.serverconfiguration.proxies.matchmaker.MatchMakerControllerInterface
-import com.kotlingirl.serverconfiguration.util.extensions.fromJsonString
 import com.kotlingirl.serverconfiguration.util.extensions.logger
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 

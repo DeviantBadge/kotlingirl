@@ -1,10 +1,8 @@
-package com.kotlingirl.matchmaker.repositories
+package com.kotlingirl.registry.repositories
 
-import com.kotlingirl.matchmaker.model.Player
+import com.kotlingirl.registry.model.Player
 import org.springframework.data.jpa.repository.JpaRepository
-import org.springframework.data.repository.CrudRepository
 import org.springframework.data.rest.core.annotation.RepositoryRestResource
-import java.util.*
 
 
 @RepositoryRestResource(collectionResourceRel = "users", path = "users")

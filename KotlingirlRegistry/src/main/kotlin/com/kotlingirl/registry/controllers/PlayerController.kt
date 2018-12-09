@@ -1,9 +1,8 @@
-package com.kotlingirl.matchmaker.controllers
+package com.kotlingirl.registry.controllers
 
-import com.kotlingirl.matchmaker.model.Player
-import com.kotlingirl.matchmaker.repositories.PlayerRepository
-import com.kotlingirl.matchmaker.service.UserService
-import com.kotlingirl.serverconfiguration.proxies.matchmaker.UserControllerInterface
+import com.kotlingirl.registry.model.Player
+import com.kotlingirl.registry.repositories.PlayerRepository
+import com.kotlingirl.registry.service.UserService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller

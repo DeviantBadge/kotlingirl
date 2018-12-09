@@ -6,12 +6,6 @@ import java.net.URI
 group = "com.kotlingirl"
 version = "1.0-SNAPSHOT"
 
-repositories {
-    jcenter()
-    mavenCentral()
-    maven { url = URI("https://repo.spring.io/milestone") }
-}
-
 buildscript {
     val kotlinVersion = "1.3.0"
     val springBootVersion = "2.1.0.RELEASE"
@@ -23,6 +17,7 @@ buildscript {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
         classpath("org.jetbrains.kotlin:kotlin-allopen:${kotlinVersion}")
+        classpath("org.jetbrains.kotlin:kotlin-noarg:${kotlinVersion}")
     }
 }
 
@@ -35,6 +30,7 @@ apply(plugin = "java")
 apply(plugin = "idea")
 
 apply(plugin = "kotlin")
+apply(plugin = "kotlin-jpa")
 apply(plugin = "kotlin-spring")
 apply(plugin = "org.springframework.boot")
 apply(plugin = "io.spring.dependency-management")
@@ -57,6 +53,8 @@ dependencies {
 
     implementation(springBoot("web"))
     implementation(springBoot("actuator"))
+    implementation(springBoot("data-jpa"))
+    implementation(springBoot("data-rest"))
 
     implementation(springCloud("netflix-ribbon"))
     implementation(springCloud("openfeign"))
@@ -67,9 +65,11 @@ dependencies {
 }
 
 ext["springCloudVersion"] = "Greenwich.M3"
+ext["springBootVersion"] = "2.0.5.RELEASE"
 configure<DependencyManagementExtension> {
     imports {
         mavenBom("org.springframework.cloud:spring-cloud-dependencies:${ext["springCloudVersion"]}")
+        mavenBom("org.springframework.boot:spring-boot-dependencies:${ext["springBootVersion"]}")
     }
 }
 

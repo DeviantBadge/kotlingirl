@@ -1,15 +1,14 @@
-package com.kotlingirl.matchmaker.service
+package com.kotlingirl.registry.service
 
-import com.kotlingirl.matchmaker.model.Player
-import com.kotlingirl.matchmaker.repositories.PlayerRepository
+import com.kotlingirl.registry.model.Player
+import com.kotlingirl.registry.repositories.PlayerRepository
 import com.kotlingirl.serverconfiguration.elements.InternalException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
-import java.util.*
 
 @Service
-class UserServiceImpl: UserService{
+class UserServiceImpl: UserService {
 
     @Autowired
     lateinit var playerRepository: PlayerRepository

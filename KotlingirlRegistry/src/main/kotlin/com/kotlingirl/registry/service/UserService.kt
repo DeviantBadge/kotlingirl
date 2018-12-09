@@ -1,7 +1,6 @@
-package com.kotlingirl.matchmaker.service
+package com.kotlingirl.registry.service
 
-import com.kotlingirl.matchmaker.model.Player
-import java.util.*
+import com.kotlingirl.registry.model.Player
 
 interface UserService {
     fun checkUser(login: String)

@@ -3,7 +3,7 @@ import org.gradle.internal.impldep.aQute.bnd.osgi.Analyzer
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.net.URI
 
-group = "io.rybalkinsd"
+group = "com.kotlingirl"
 version = "1.0-SNAPSHOT"
 
 buildscript {
@@ -22,12 +22,11 @@ buildscript {
 
 plugins {
     java
+    id("io.spring.dependency-management") version "1.0.6.RELEASE"
 }
 
-apply(plugin = "java-library")
 apply(plugin = "java")
 apply(plugin = "idea")
-
 apply(plugin = "kotlin")
 apply(plugin = "kotlin-spring")
 apply(plugin = "org.springframework.boot")
@@ -39,16 +38,19 @@ tasks.withType<KotlinCompile> {
 }
 
 dependencies {
-    implementation(project(":kotlingirl-configuration"))
+    implementation("com.alibaba", "fastjson", "1.2.54")
+    implementation("org.slf4j", "slf4j-api", "1.7.25")
 
     implementation(kotlin("stdlib-jdk8"))
     implementation(kotlin("reflect"))
-    implementation("io.github.rybalkinsd", "kohttp", "0.3.1")
-    implementation("org.slf4j", "slf4j-api", "1.7.25")
 
-    implementation(springCloud("netflix-eureka-client"))
-    implementation(springBoot("web"))
     implementation(springBoot("actuator"))
+    implementation(springBoot("webflux"))
+    implementation(springBoot("data-redis-reactive"))
+
+    implementation("org.springframework.cloud:spring-cloud-starter")
+    implementation(springCloud("gateway"))
+    implementation(springCloud("netflix-eureka-client"))
 
     testImplementation("junit", "junit", "4.12")
     testImplementation(springBoot("test"))
@@ -59,6 +61,7 @@ ext["springBootVersion"] = "2.0.5.RELEASE"
 configure<DependencyManagementExtension> {
     imports {
         mavenBom("org.springframework.cloud:spring-cloud-dependencies:${ext["springCloudVersion"]}")
+        mavenBom("org.springframework.cloud:spring-cloud-gateway:2.0.1.RELEASE")
         mavenBom("org.springframework.boot:spring-boot-dependencies:${ext["springBootVersion"]}")
     }
 }

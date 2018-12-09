@@ -5,12 +5,6 @@ import java.net.URI
 group = "com.kotlingirl"
 version = "1.0-SNAPSHOT"
 
-repositories {
-    jcenter()
-    mavenCentral()
-    maven { url = URI("https://repo.spring.io/milestone") }
-}
-
 buildscript {
     val kotlinVersion = "1.3.0"
     val springBootVersion = "2.1.0.RELEASE"
@@ -19,25 +13,18 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
-        classpath("org.jetbrains.kotlin:kotlin-allopen:${kotlinVersion}")
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
+        classpath("org.jetbrains.kotlin:kotlin-allopen:$kotlinVersion")
     }
 }
 
 plugins {
     java
-    application
 }
 
-application {
-    mainClassName = "com.kotlingirl.gameservice.GameServiceApplicationKt"
-}
-
-apply(plugin = "java-library")
 apply(plugin = "java")
 apply(plugin = "idea")
-
 apply(plugin = "kotlin")
 apply(plugin = "kotlin-spring")
 apply(plugin = "org.springframework.boot")
@@ -48,14 +35,9 @@ tasks.withType<KotlinCompile> {
     kotlinOptions.freeCompilerArgs = listOf("-Xjsr305=strict")
 }
 
-val jar by tasks.getting(Jar::class) {
-    manifest {
-        attributes["Main-Class"] = "com.example.MainKt"
-    }
-}
-
 dependencies {
     implementation(project(":kotlingirl-configuration"))
+
     implementation("io.github.rybalkinsd", "kohttp", "0.3.1")
     implementation("org.slf4j", "slf4j-api", "1.7.25")
     implementation("com.alibaba", "fastjson", "1.2.54")
@@ -76,9 +58,11 @@ dependencies {
 }
 
 ext["springCloudVersion"] = "Greenwich.M3"
+ext["springBootVersion"] = "2.0.5.RELEASE"
 configure<DependencyManagementExtension> {
     imports {
         mavenBom("org.springframework.cloud:spring-cloud-dependencies:${ext["springCloudVersion"]}")
+        mavenBom("org.springframework.boot:spring-boot-dependencies:${ext["springBootVersion"]}")
     }
 }
 

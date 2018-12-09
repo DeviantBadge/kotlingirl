@@ -1,5 +1,6 @@
 package com.kotlingirl.matchmaker.controllers
 
+import com.kotlingirl.serverconfiguration.MatchMakerConstants
 import com.kotlingirl.serverconfiguration.elements.InternalException
 import com.kotlingirl.serverconfiguration.elements.messages.MatchMakerGameResponse
 import com.kotlingirl.serverconfiguration.elements.messages.UserCredentials
@@ -8,10 +9,16 @@ import com.kotlingirl.serverconfiguration.proxies.matchmaker.MatchMakerControlle
 import com.kotlingirl.serverconfiguration.util.extensions.fromJsonString
 import com.kotlingirl.serverconfiguration.util.extensions.logger
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
 
 // todo read about spring security
 // todo read about spring services
@@ -23,6 +30,10 @@ import org.springframework.web.bind.annotation.RequestBody
 @Controller
 class MatchMakerController : MatchMakerControllerInterface {
     val log = logger()
+
+
+    @Value("\${eureka.instance.instanceId}")
+    lateinit var instanceId: String
 
     @Autowired
     lateinit var gameRepository: GameRepository
@@ -38,6 +49,12 @@ class MatchMakerController : MatchMakerControllerInterface {
 
     override fun ranked(@RequestBody request: UserRequest): ResponseEntity<MatchMakerGameResponse> {
         TODO()
+    }
+
+    @RequestMapping("/greeting")
+    fun test(): ResponseEntity<String> {
+        log.warn("GOT IT, I GOT REQUEST!")
+        return ResponseEntity.ok(instanceId)
     }
 
     fun checkUser(credentials: UserCredentials?): Unit = when {

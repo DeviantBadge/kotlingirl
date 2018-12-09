@@ -13,5 +13,4 @@ object GameServiceConstants {
     //                                  Standard ws in-game endpoints
     // **************************************************************************************************
     const val WEB_SOCKET_PATH = "/events/connect"
-
 }

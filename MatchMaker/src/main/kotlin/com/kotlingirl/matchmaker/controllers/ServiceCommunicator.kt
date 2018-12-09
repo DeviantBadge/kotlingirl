@@ -29,7 +29,7 @@ class ServiceCommunicator {
     val log = logger()
 
     @Autowired
-    lateinit var discoveryClient: DiscoveryClient
+    lateinit var eurekaClient: EurekaClient
 
     @Autowired
     @Qualifier("no_exc")
@@ -41,13 +41,14 @@ class ServiceCommunicator {
     fun createCasualGame(parameters: UserRequestParameters?): MatchMakerGameUnit {
         val serviceInstance: ServiceInstance
         val response: ResponseEntity<String>
-        log.error(discoveryClient.getInstances("localhost:$GAME_SERVICE_NAME_LOWER:8090}").toString())
+        eurekaClient.getInstancesByVipAddress(GAME_SERVICE_NAME_LOWER, false)
+                .forEach{ log.error(it.instanceId) }
         try {
             serviceInstance = loadBalancer.choose(GAME_SERVICE_NAME_LOWER)
                     ?: throw InternalException(HttpStatus.INTERNAL_SERVER_ERROR, "Cant choose service to use")
-            log.error(serviceInstance.instanceId)
+            log.error(serviceInstance.port.toString())
             response = restTemplate.postForEntity(
-                    "http://gameservice:d5cc6203ff377e3c76695021738ffbb1:-770878734$GAME_PATH$CREATE_PATH",
+                    "${serviceInstance.uri}$GAME_PATH$CREATE_PATH",
                     (parameters ?: UserRequestParameters()).toJsonHttpEntity(),
                     String::class.java)
 
@@ -65,19 +66,14 @@ class ServiceCommunicator {
         return MatchMakerGameUnit(
                 serviceInstance,
                 response.body?.fromJsonString(GameServiceResponse::class.java)?.id
-                        ?: throw InternalException(HttpStatus.INTERNAL_SERVER_ERROR, "Response with empty body")
-        )
+                        ?: throw InternalException(HttpStatus.INTERNAL_SERVER_ERROR, "Response with empty body"))
     }
 
     fun appendPlayerToGame(game: MatchMakerGameUnit, credentials: UserCredentials) {
-        val serviceInstance: ServiceInstance
         val response: ResponseEntity<String>
         try {
-            serviceInstance = loadBalancer.choose(GAME_SERVICE_NAME_LOWER)
-                    ?: throw InternalException(HttpStatus.INTERNAL_SERVER_ERROR, "Cant choose service to use")
-
             response = restTemplate.postForEntity(
-                    serviceInstance.uri.toString() + GAME_PATH + APPEND_PLAYER_PATH,
+                    "${game.serviceInstance.uri}$GAME_PATH$APPEND_PLAYER_PATH",
                     credentials.toJsonHttpEntity(),
                     String::class.java)
 
@@ -85,6 +81,7 @@ class ServiceCommunicator {
                     "body ${response.body ?: "Empty body"} and " +
                     "response code ${response.statusCode}")
         } catch (e: IllegalStateException) {
+            log.info("${e::class.java.simpleName} and message ${e.message}")
             throw InternalException(HttpStatus.INTERNAL_SERVER_ERROR, "Cant choose service to use")
         }
         if (!response.statusCode.is2xxSuccessful)

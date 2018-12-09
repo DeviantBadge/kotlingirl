@@ -31,6 +31,9 @@ eureka:
     service-url:
       default-zone: http://localhost:8761/eureka
 
+  instance:
+    instanceId: ${spring.application.name}:${spring.application.instance_id:${random.int(0,1000000000)}}
+
 
 ping-server:
   ribbon:

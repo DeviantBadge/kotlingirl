@@ -16,7 +16,7 @@ class RestTemplateDeclaration {
     lateinit var restTemplateBuilder: RestTemplateBuilder
 
     @Bean(name = ["no_exc"])
-    @LoadBalanced
+//    @LoadBalanced
     fun restWithoutExceptions(): RestTemplate {
         return restTemplateBuilder
                 .errorHandler(errorHandler)

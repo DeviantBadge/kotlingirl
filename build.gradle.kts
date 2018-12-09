@@ -17,22 +17,4 @@ allprojects {
 
 subprojects {
     version = "1.0"
-
-    buildscript {
-        val kotlinVersion = "1.3.0"
-        val springBootVersion = "2.1.0.RELEASE"
-
-        repositories {
-            mavenCentral()
-        }
-        dependencies {
-            classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-            classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
-            classpath("org.jetbrains.kotlin:kotlin-allopen:${kotlinVersion}")
-        }
-    }
-
-    apply(plugin = "java-library")
-    apply(plugin = "java")
-    apply(plugin = "idea")
 }

@@ -1,1 +1,0 @@
-evaluationDependsOn(":kotlingirl-configuration")

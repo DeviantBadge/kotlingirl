@@ -67,9 +67,11 @@ dependencies {
 }
 
 ext["springCloudVersion"] = "Greenwich.M3"
+ext["springBootVersion"] = "2.0.5.RELEASE"
 configure<DependencyManagementExtension> {
     imports {
         mavenBom("org.springframework.cloud:spring-cloud-dependencies:${ext["springCloudVersion"]}")
+        mavenBom("org.springframework.boot:spring-boot-dependencies:${ext["springBootVersion"]}")
     }
 }
 

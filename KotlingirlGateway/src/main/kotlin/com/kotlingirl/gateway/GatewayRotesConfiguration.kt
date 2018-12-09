@@ -28,7 +28,7 @@ class GatewayRotesConfiguration {
                             .uri("lb://matchmaker")
                 }
                 .route("registry_route") { spec ->
-                    spec.path("/register/**")
+                    spec.path("/users/**")
                             .uri("lb://registry")
 
                 }

@@ -1,25 +1,32 @@
 package com.kotlingirl.gameservice.http
 
 import com.kotlingirl.gameservice.game.GameRepository
+import com.kotlingirl.serverconfiguration.GameServiceConstants
 import com.kotlingirl.serverconfiguration.elements.messages.GameServiceResponse
 import com.kotlingirl.serverconfiguration.elements.messages.UserCredentials
 import com.kotlingirl.serverconfiguration.elements.messages.UserRequestParameters
-import com.kotlingirl.serverconfiguration.proxies.gameservice.GameServiceControllerInterface
 import com.kotlingirl.serverconfiguration.util.extensions.logger
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+
 
 @Controller
-class GameServiceController: GameServiceControllerInterface {
+@RequestMapping(GameServiceConstants.GAME_PATH)
+class GameServiceController {
     val log = logger()
 
     @Autowired
     lateinit var gameRepository: GameRepository
 
-    //  todo strange error while handle json
-    override fun create(@RequestBody parameters: UserRequestParameters): ResponseEntity<GameServiceResponse> {
+    @PostMapping(
+            path = [GameServiceConstants.CREATE_PATH],
+            consumes = [MediaType.APPLICATION_JSON_VALUE])
+    fun create(@RequestBody parameters: UserRequestParameters): ResponseEntity<GameServiceResponse> {
         // todo
         log.info("Haha, create data - $parameters")
         return ResponseEntity.ok().body(GameServiceResponse(0))
@@ -36,7 +43,10 @@ class GameServiceController: GameServiceControllerInterface {
     }
 
 
-    override fun connect(@RequestBody credentials: UserCredentials): ResponseEntity<String> {
+    @PostMapping(
+            path = [GameServiceConstants.APPEND_PLAYER_PATH],
+            consumes = [MediaType.APPLICATION_JSON_VALUE])
+    fun connect(@RequestBody credentials: UserCredentials): ResponseEntity<String> {
         // todo
         log.info("Haha, connect data - $credentials")
         return ResponseEntity.ok().build()

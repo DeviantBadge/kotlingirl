@@ -1,16 +1,18 @@
 package com.kotlingirl.matchmaker.controllers
 
+import com.kotlingirl.serverconfiguration.MatchMakerConstants
 import com.kotlingirl.serverconfiguration.elements.InternalException
 import com.kotlingirl.serverconfiguration.elements.messages.MatchMakerGameResponse
 import com.kotlingirl.serverconfiguration.elements.messages.UserCredentials
 import com.kotlingirl.serverconfiguration.elements.messages.UserRequest
-import com.kotlingirl.serverconfiguration.proxies.matchmaker.MatchMakerControllerInterface
 import com.kotlingirl.serverconfiguration.util.extensions.logger
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 
@@ -22,9 +24,9 @@ import org.springframework.web.bind.annotation.RequestMapping
 // todo implement basis
 
 @Controller
-class MatchMakerController : MatchMakerControllerInterface {
+@RequestMapping(MatchMakerConstants.PLAY_PATH)
+class MatchMakerController {
     val log = logger()
-
 
     @Value("\${eureka.instance.instanceId}")
     lateinit var instanceId: String
@@ -32,7 +34,10 @@ class MatchMakerController : MatchMakerControllerInterface {
     @Autowired
     lateinit var gameRepository: GameRepository
 
-    override fun casual(@RequestBody request: UserRequest): ResponseEntity<MatchMakerGameResponse> {
+    @PostMapping(
+            path = [MatchMakerConstants.CASUAL_PATH],
+            consumes = [MediaType.APPLICATION_JSON_VALUE])
+    fun casual(@RequestBody request: UserRequest): ResponseEntity<MatchMakerGameResponse> {
         checkUser(request.credentials)
         val game = gameRepository.getCasualGame(request.parameters)
         // here can be an exception, its on first time
@@ -41,7 +46,10 @@ class MatchMakerController : MatchMakerControllerInterface {
         return ResponseEntity.ok().body(MatchMakerGameResponse(game.serviceInstance.uri, game.id))
     }
 
-    override fun ranked(@RequestBody request: UserRequest): ResponseEntity<MatchMakerGameResponse> {
+    @PostMapping(
+            path = [MatchMakerConstants.RANKED_PATH],
+            consumes = [MediaType.APPLICATION_JSON_VALUE])
+    fun ranked(@RequestBody request: UserRequest): ResponseEntity<MatchMakerGameResponse> {
         TODO()
     }
 

@@ -5,7 +5,7 @@ import javax.persistence.*
 
 @Entity
 @Table(name = "sessiondata", schema = "game")
-data class sessiondata(
+data class SessionData(
         @Id
         @GeneratedValue(strategy = GenerationType.AUTO)
         var id: Long = -1,

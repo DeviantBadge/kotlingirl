@@ -16,8 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping
 @Controller
 @RequestMapping(RegistryConstants.USERS_PATH)
 class PlayerController {
-    @Autowired
-    lateinit var playerRepository: PlayerRepository
 
     @Autowired
     lateinit var userService: UserService
@@ -26,35 +24,35 @@ class PlayerController {
             path = ["/registration"],
             consumes = [MediaType.APPLICATION_JSON_VALUE])
     fun registration(login: String, password: String): Player {
-        userService.checkUser(login)
-        return playerRepository.findByLogin(login)
+        return userService.registrateUser(login, password)
     }
 
     @GetMapping(
             path = ["/login"],
             consumes = [MediaType.APPLICATION_JSON_VALUE])
-    fun login(name: String, password: String): ResponseEntity<String> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    fun login(name: String, password: String): Player {
+        return userService.login(name, password)
     }
 
     @PatchMapping(
             path = ["/update"],
             consumes = [MediaType.APPLICATION_JSON_VALUE])
-    fun update(name: String, password: String): ResponseEntity<String> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    fun update(player: Player): Player {
+        return userService.updateUser(player)
+
     }
 
     @GetMapping(
             path = ["/allUsers"],
             consumes = [MediaType.APPLICATION_JSON_VALUE])
-    fun getAllUsers(): ResponseEntity<String> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    fun getAllUsers(): MutableList<Player> {
+        return userService.getAllUsers()
     }
 
     @GetMapping(
             path = ["/onlineUsers"],
             consumes = [MediaType.APPLICATION_JSON_VALUE])
-    fun getOnlineUsers(): ResponseEntity<String> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    fun getOnlineUsers(): List<Player> {
+        return userService.getAllOnlineUser()
     }
 }

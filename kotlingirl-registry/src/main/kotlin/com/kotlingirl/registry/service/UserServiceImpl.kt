@@ -15,13 +15,17 @@ class UserServiceImpl: UserService {
 
     override fun login(login: String, password: String): Player {
         val player: Player = playerRepository.findByLogin(login)
-        if (player.password == password) return player
+        if (player.password == password && !player.logged) {
+            player.logged = true
+            return playerRepository.save(player)
+        }
         else throw InternalException(HttpStatus.BAD_REQUEST, "bad credentional")
 
     }
 
     override fun registrateUser(login: String, password: String): Player {
         val player: Player? = playerRepository.findByLogin(login)
+        checkUser(login)
         if(player != null) throw InternalException(HttpStatus.BAD_REQUEST, "This name already registrated")
         return playerRepository.save(Player(login, password))
     }
@@ -33,4 +37,17 @@ class UserServiceImpl: UserService {
         }
     }
 
+    override fun updateUser(player: Player) = playerRepository.save(player)
+
+    override fun updateUserRating(ratingDelta: Int, playerId: Long): Player {
+
+        var player: Player? = playerRepository.findById(playerId).orElse(null)
+
+        player!!.rating += ratingDelta
+        return playerRepository.save(player)
+    }
+
+    override fun getAllUsers() = playerRepository.findAll()
+
+    override fun getAllOnlineUser() = playerRepository.findAll().filter{o -> o.logged}
 }

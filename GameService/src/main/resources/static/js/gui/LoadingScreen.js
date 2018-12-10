@@ -60,7 +60,7 @@ LoadingScreen.prototype.initBoy = function () {
         this.loadingStage.removeChild(this.boy.bmp);
         this.boy = null;
     }
-    this.boy = new Player(0, {x: GM.getWidthInPixel() / 2, y: GM.getHeightInPixel() / 2}, textureManager.asset.pawn);
+    this.boy = new Player(0, {x: GM.getWidthInPixel() / 2, y: GM.getHeightInPixel() / 2}, textureManager.asset.pawn.third);
     this.boy.animate("right");
     this.boy.bmp.regX += GM.getTileSize() / 2;
     this.boy.bmp.regY += GM.getTileSize() / 2 + this.boyRadius;

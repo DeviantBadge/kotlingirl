@@ -1,14 +1,21 @@
-package com.kotlingirl.gameservice.game
+package com.kotlingirl.gameservice.game.entities
 
 import com.kotlingirl.gameservice.communication.PawnDto
+import com.kotlingirl.gameservice.game.Bar
+import com.kotlingirl.gameservice.game.Point
+import com.kotlingirl.gameservice.game.Tickable
 
-class Pawn(val id: Int) : Tickable {
+class Pawn(val id: Int, val count: Int) : Tickable {
 
     var position = Point(0, 0)
     val pawnSize = 32
     val halfpawnSize = pawnSize / 2
     val quartPawnSize = pawnSize / 4
     var alive: Boolean = true
+        set(value) {
+            field = value
+            dto.alive = value
+        }
     var direction: String = ""
         set(value) {
             field = value
@@ -19,7 +26,8 @@ class Pawn(val id: Int) : Tickable {
     val velocity = 2
 
     override fun tick(elapsed: Long) {
-        if (direction.isNotEmpty()) {
+        if (alive) {
+            if (direction.isNotEmpty()) {
                 when (direction) {
                     "UP" -> {
                         position.y += velocity
@@ -34,13 +42,14 @@ class Pawn(val id: Int) : Tickable {
                         position.x -= velocity
                     }
                 }
-            updatePosition()
-        } else {
-            direction = ""
+                updatePosition()
+            } else {
+                direction = ""
+            }
         }
 
     }
-    var dto = PawnDto(id, bar.leftBottomCorner)
+    var dto = PawnDto(id, bar.leftBottomCorner, count = count)
 
     fun changePosition(newPosition: Point) {
         position = newPosition

@@ -1,6 +1,6 @@
 var TextureManager = function () {
     this.asset = {
-        pawn: null,
+        pawn: {},
         bomb: null,
         fire: null,
         tile: {},
@@ -13,7 +13,9 @@ TextureManager.prototype.load = function (afterload) {
     var queue = new createjs.LoadQueue();
     var self = this;
     queue.addEventListener("complete", function () {
-        self.asset.pawn = queue.getResult("pawn");
+        self.asset.pawn.first = queue.getResult("pawn");
+        self.asset.pawn.second = queue.getResult("pawn1");
+        self.asset.pawn.third = queue.getResult("pawn2");
         self.asset.tile.grass = queue.getResult("tile_grass");
         self.asset.tile.wall = queue.getResult("tile_wall");
         self.asset.tile.wood = queue.getResult("tile_wood");
@@ -27,6 +29,8 @@ TextureManager.prototype.load = function (afterload) {
     });
     queue.loadManifest([
         {id: "pawn", src: "img/betty.png"},
+        {id: "pawn1", src: "img/betty2.png"},
+        {id: "pawn2", src: "img/george.png"},
         {id: "tile_grass", src: "img/tile_grass.png"},
         {id: "tile_wall", src: "img/tile_wall.png"},
         {id: "tile_wood", src: "img/crateWood.png"},

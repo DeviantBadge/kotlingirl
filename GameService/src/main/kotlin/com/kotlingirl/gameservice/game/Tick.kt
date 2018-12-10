@@ -3,6 +3,7 @@ package com.kotlingirl.gameservice.game
 
 import com.kotlingirl.gameservice.communication.Replica
 import com.kotlingirl.gameservice.communication.MessageManager
+import com.kotlingirl.gameservice.game.entities.Pawn
 import com.kotlingirl.serverconfiguration.util.extensions.logger
 import org.springframework.web.socket.WebSocketSession
 import java.util.concurrent.ConcurrentLinkedDeque

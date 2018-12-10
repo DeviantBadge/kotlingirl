@@ -37,7 +37,24 @@ MessageBroker.prototype.handlePawn = function(obj) {
         player.direction = direction;
         player.alive = obj.alive;
     } else {
-        player = new Player(obj.id, position, textureManager.asset.pawn);
+        switch (obj.count) {
+            case 0:
+                var texture = textureManager.asset.pawn.first;
+                break;
+            case 1:
+                texture = textureManager.asset.pawn.second;
+                break;
+            case 2:
+                texture = textureManager.asset.pawn.third;
+                break;
+            case 3:
+                texture = textureManager.asset.pawn.second;
+                break;
+            default:
+                console.error('Smth was wrong with pawn texture!');
+                throw "Smth was wrong with pawn texture!";
+        }
+        player = new Player(obj.id, position, texture);
         // here we push to create element at screen
         GM.gameStage.addChild(player.bmp);
         // here we push to array of object, to use it in future

@@ -8,7 +8,7 @@ import com.kotlingirl.gameservice.communication.MoveData
 import com.kotlingirl.gameservice.communication.Topic
 import com.kotlingirl.gameservice.communication.User
 import com.kotlingirl.gameservice.game.Mechanics
-import com.kotlingirl.gameservice.game.Pawn
+import com.kotlingirl.gameservice.game.entities.Pawn
 import com.kotlingirl.gameservice.game.Point
 import com.kotlingirl.serverconfiguration.util.extensions.logger
 import junit.framework.Assert.assertEquals

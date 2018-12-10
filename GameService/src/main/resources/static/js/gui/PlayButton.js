@@ -60,9 +60,9 @@ PlayButton.prototype._initPawns = function() {
     var position = {x: 0, y: 0};
     position.x = this.x + (this.width - this.pawnMargin) / 2 - GM.getTileSize();
     position.y = this.y + this.height / 3 - GM.getTileSize() / 2;
-    this.pawn1 = new Player(1, position, textureManager.asset.pawn);
+    this.pawn1 = new Player(1, position, textureManager.asset.pawn.first);
     position.x = position.x + this.pawnMargin + GM.getTileSize();
-    this.pawn2 = new Player(1, position, textureManager.asset.pawn);
+    this.pawn2 = new Player(1, position, textureManager.asset.pawn.first);
     this.elements.push(this.pawn1.bmp, this.pawn2.bmp);
 };
 

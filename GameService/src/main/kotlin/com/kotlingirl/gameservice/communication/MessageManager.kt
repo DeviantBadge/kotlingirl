@@ -1,23 +1,19 @@
 package com.kotlingirl.gameservice.communication
 
-import com.kotlingirl.gameservice.game.Bomb
 import com.kotlingirl.gameservice.game.Mechanics
-import com.kotlingirl.gameservice.game.Pawn
 import com.kotlingirl.gameservice.game.Tile
 import com.kotlingirl.serverconfiguration.util.extensions.logger
 import org.springframework.web.socket.WebSocketSession
 import java.rmi.activation.UnknownObjectException
 import java.util.concurrent.ConcurrentLinkedQueue
 
-class MessageManager(val mechanics: Mechanics, val broker: Broker) {
+class MessageManager(private val mechanics: Mechanics, private val broker: Broker) {
 
     var inputQueue = ConcurrentLinkedQueue<Pair<WebSocketSession, Message> >()
-    var replica : Replica? = Replica(Topic.REPLICA, Data(emptyList(), false))
+    val objects = mutableListOf<Any>()
 
     fun makeReplica(elapsed: Long): Replica? {
-        val objects = mutableListOf<Any>()
-        val stopPawns = mutableSetOf<Pawn>()
-        stopPawns.addAll(mechanics.pawns.values)
+        objects.clear()
         if (inputQueue.isNotEmpty()) {
             val batchSize = inputQueue.size
             log.info("Size of copied queue size = ${batchSize}")
@@ -27,7 +23,6 @@ class MessageManager(val mechanics: Mechanics, val broker: Broker) {
                     Topic.MOVE -> {
                         val moveData: MoveData = pair.second.data as MoveData
                         val pawn = mechanics.pawns[pair.first]
-                        stopPawns.remove(pawn)
                         if (pawn != null && !(objects.contains(pawn.dto))) {
                             pawn.direction = moveData.direction
                             if (!mechanics.checkColliding(pawn)) {
@@ -37,25 +32,69 @@ class MessageManager(val mechanics: Mechanics, val broker: Broker) {
                         }
                     }
 
-                    Topic.PLANT_BOMB -> {
+                    Topic.PLANT_BOMB, Topic.JUMP -> {
                         val bomb = mechanics.plantBomb(pair.first)
                         objects.add(0, bomb.dto)
-                    }
-
-                    Topic.JUMP -> {
-
                     }
 
                     else -> throw UnknownObjectException("Not such Topic type")
                 }
             }
         }
-        stopPawns.forEach { it.direction = "" ; objects.add(it.dto) }
-        mechanics.bombs.forEach { objects.add(it.dto) }
+        consumeObjects(elapsed)
         return if (objects.isNotEmpty()) {
-            log.info("last state of pawn ${objects}")
-            Replica(Topic.REPLICA, Data(objects, false))
+//            log.info("last state of pawn ${objects}")
+            return Replica(Topic.REPLICA, Data(objects, false))
         } else null
+    }
+
+    private fun consumeObjects(elapsed: Long) {
+        consumeGameOver()
+        consumeBombs(elapsed)
+        consumePawns()
+        consumeFires(elapsed)
+    }
+
+    private fun consumeGameOver() {
+        val badSessions = mutableListOf<WebSocketSession>()
+        mechanics.pawns.forEach { session, pawn ->
+            if (!pawn.alive) {
+                broker.send(session, Topic.GAME_OVER, "Game Over"); badSessions.add(session)
+            }
+        }
+        //badSessions.forEach { mechanics.pawns.remove(it) }
+    }
+
+    private fun consumeBombs(elapsed: Long) {
+        mechanics.bombs.forEach {
+            if (it.timeLeft == 0) objects.addAll(mechanics.explose(it))
+            else {
+                objects.add(it.dto)
+                it.tick(elapsed)
+            }
+        }
+        mechanics.bombs.removeIf { it.explosed }
+    }
+
+    private fun consumePawns() {
+        val objPawns = objects.filter { it is PawnDto }.map { it as PawnDto }
+        mechanics.pawns.values.forEach {
+            if (!it.alive) {
+                if (objPawns.contains(it.dto)) {
+                    objects.remove(it.dto); objects.add(it.dto)
+                }
+            }
+        }
+        mechanics.pawns.values.forEach {
+            if (!objPawns.contains(it.dto)) {
+                it.direction = ""; objects.add(it.dto)
+            }
+        }
+    }
+
+    private fun consumeFires(elapsed: Long) {
+        mechanics.fires.removeIf { it.leftTime == 0 }
+        mechanics.fires.forEach { objects.add(it.dto); it.tick(elapsed) }
     }
 
     fun addMessage(session: WebSocketSession, msg: Message) {

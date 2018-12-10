@@ -1,6 +1,5 @@
 package com.kotlingirl.gameservice.communication
 
-import com.kotlingirl.gameservice.game.User
 import com.kotlingirl.serverconfiguration.util.extensions.logger
 import org.springframework.web.socket.TextMessage
 import org.springframework.web.socket.WebSocketSession

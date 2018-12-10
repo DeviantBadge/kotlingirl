@@ -32,8 +32,8 @@ class GameServiceController {
         return ResponseEntity.ok().body(GameServiceResponse(0))
 //        log.info("Added request for $playerCount players")
 //        return when {
-//            playerCount < 2 -> ResponseEntity.badRequest().body("Too low player count")
-//            playerCount > 4 -> ResponseEntity.badRequest().body("Too high player count")
+//            playerCount < 2 -> ResponseEntity.badRequest().body("Too low player pawnCount")
+//            playerCount > 4 -> ResponseEntity.badRequest().body("Too high player pawnCount")
 //            else -> {
 //                // beanFactory create game and and handle errors
 //                val game = gameRepository.createGame(playerCount)
@@ -51,8 +51,8 @@ class GameServiceController {
         log.info("Haha, connect data - $credentials")
         return ResponseEntity.ok().build()
 //        return when {
-//            playerCount < 2 -> ResponseEntity.badRequest().body("Too low player count")
-//            playerCount > 4 -> ResponseEntity.badRequest().body("Too high player count")
+//            playerCount < 2 -> ResponseEntity.badRequest().body("Too low player pawnCount")
+//            playerCount > 4 -> ResponseEntity.badRequest().body("Too high player pawnCount")
 //            else -> {
 //                // beanFactory create game and and handle errors
 //                val game = gameRepository.createGame(playerCount)

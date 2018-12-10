@@ -8,5 +8,7 @@ enum class Topic {
     START,
     END_MATCH,
     POSSESS,
-    FINISH
+    JUMP,
+    FINISH,
+    GAME_OVER
 }

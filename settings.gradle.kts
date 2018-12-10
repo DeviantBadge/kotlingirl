@@ -9,7 +9,7 @@
 
 rootProject.name = "kotlingirl"
 
-include(":GameService")
+include(":kotlingirl-gameservice")
 include(":kotlingirl-configuration")
 include(":kotlingirl-eureka")
 include(":kotlingirl-front")

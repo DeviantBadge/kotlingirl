@@ -37,9 +37,10 @@ MessageBroker.prototype.handlePawn = function(obj) {
         player.direction = direction;
         player.alive = obj.alive;
     } else {
+        var texture = null;
         switch (obj.count) {
             case 0:
-                var texture = textureManager.asset.pawn.first;
+                texture = textureManager.asset.pawn.first;
                 break;
             case 1:
                 texture = textureManager.asset.pawn.second;

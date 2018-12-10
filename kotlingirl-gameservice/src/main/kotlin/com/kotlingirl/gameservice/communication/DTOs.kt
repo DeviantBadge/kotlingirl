@@ -1,5 +1,7 @@
 package com.kotlingirl.gameservice.communication
 import com.kotlingirl.gameservice.game.Point
+import com.kotlingirl.serverconfiguration.util.IntIdGen
+import org.springframework.web.socket.WebSocketSession
 
 data class Replica(val topic: Topic, val data: Any)
 data class GameOver(val topic: Topic = Topic.GAME_OVER, val data: String = "Game Over")
@@ -7,7 +9,14 @@ data class Data(val objects: List<Any>, val gameOver: Boolean)
 open class Message(open val topic: Topic, open val data: Any)
 data class MoveMessage(override val topic: Topic, override val data: MoveData): Message(topic, Any())
 data class MoveData(val direction: String)
-data class User(val id: Int, val name: String)
+data class User(val name: String) {
+    companion object {
+        private val idGen = IntIdGen()
+    }
+    val id = idGen.getId()
+    var linked = false
+    lateinit var webSocketSession: WebSocketSession
+}
 data class PawnDto(val id: Int, var position: Point = Point(0, 0),
                    var direction: String = "", val type: String = "Pawn",
                    var alive: Boolean = true, val count: Int) {

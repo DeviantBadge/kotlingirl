@@ -28,7 +28,6 @@ class Mechanics {
 
     fun initPawns() {
         val curCoord = Point(1, h - 2)
-        var count = 0
         for (entry in pawns) {
             entry.value.changePosition(coordToPoint(curCoord)).also { log.info("Begin state: ${entry.value.dto}") }
             with(curCoord) {

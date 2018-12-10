@@ -12,10 +12,10 @@ class GameRepository {
 
     // concurrent map
     private val games = ConcurrentHashMap<Int, Game>()
-
+/*
     init {
         games[0] = Game(2)
-    }
+    }*/
 
     // get new game
     fun createGame(amount: Int): Game {

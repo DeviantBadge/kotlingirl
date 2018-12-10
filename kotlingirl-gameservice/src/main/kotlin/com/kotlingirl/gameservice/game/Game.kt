@@ -17,18 +17,17 @@ import com.kotlingirl.gameservice.communication.User
 import com.kotlingirl.serverconfiguration.util.extensions.fromJsonString
 import org.springframework.web.socket.WebSocketSession
 
-@Component
-@Scope("prototype")
 class Game(val count: Int) {
     companion object {
         private val log = logger()
         private val idGen = IntIdGen()
     }
-    val id = 0//idGen.getId()
-    val ticker = Ticker()
-    val connectionPool = ConnectionPool()
-    lateinit var broker: Broker
+    private val ticker = Ticker()
+    private val connectionPool = ConnectionPool()
+    val id = idGen.getId()
     var mechanics = Mechanics()
+    var users = mutableSetOf<User>()
+    lateinit var broker: Broker
     lateinit var messageManager: MessageManager
 
     fun start() {
@@ -40,7 +39,12 @@ class Game(val count: Int) {
         log.info("New thread is started")
     }
 
-    fun addUser(session: WebSocketSession, user: User) {
+    fun addUser(user: User) {
+        users.add(user)
+    }
+
+    fun linkUser(session: WebSocketSession) {
+        val user = users.first { !it.linked }.also { it.linked = true; it.webSocketSession = session }
         connectionPool.add(session, user)
         mechanics.createPawn(session, user)
     }

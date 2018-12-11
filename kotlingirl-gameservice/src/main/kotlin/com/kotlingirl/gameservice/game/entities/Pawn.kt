@@ -25,6 +25,7 @@ class Pawn(val id: Int, val count: Int) : Tickable {
     var bar = Bar(position, position)
     val velocity = 2
     var bombsCount = 1
+    var deadTime = 100
 
     override fun tick(elapsed: Long) {
         if (alive) {
@@ -47,6 +48,8 @@ class Pawn(val id: Int, val count: Int) : Tickable {
             } else {
                 direction = ""
             }
+        } else {
+            deadTime--
         }
 
     }

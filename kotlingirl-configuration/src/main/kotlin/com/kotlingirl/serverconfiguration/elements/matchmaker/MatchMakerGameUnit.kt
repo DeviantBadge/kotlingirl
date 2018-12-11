@@ -9,7 +9,7 @@ data class MatchMakerGameUnit(
         val maxPlayers: Int = 3,
         var currentPlayers: Int = 0) {
     val ready: Boolean
-        get() = currentPlayers == maxPlayers
+        get() = currentPlayers >= maxPlayers
 
     fun incPlayers(){
         currentPlayers++

@@ -43,7 +43,8 @@ class UserServiceImpl: UserService {
 
         var player: Player? = playerRepository.findById(playerId).orElse(null)
 
-        player!!.rating += ratingDelta
+        player!!
+        player.rating += ratingDelta
         return playerRepository.save(player)
     }
 

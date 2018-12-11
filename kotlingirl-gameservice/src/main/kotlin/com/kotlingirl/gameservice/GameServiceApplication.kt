@@ -8,8 +8,12 @@ import org.springframework.context.annotation.Bean
 
 @EnableEurekaClient
 @SpringBootApplication(scanBasePackageClasses = [GameServiceApplication::class, ServerConfigurationApplication::class])
-class GameServiceApplication
+class GameServiceApplication {
+    @Bean
+    fun amount() = 3
+}
 
 fun main(args: Array<String>) {
+
     runApplication<GameServiceApplication>(*args)
 }

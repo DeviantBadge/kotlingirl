@@ -3,7 +3,7 @@ import org.gradle.internal.impldep.aQute.bnd.osgi.Analyzer
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.net.URI
 
-group = "io.rybalkinsd"
+group = "com.kotlingirl"
 version = "1.0-SNAPSHOT"
 
 buildscript {

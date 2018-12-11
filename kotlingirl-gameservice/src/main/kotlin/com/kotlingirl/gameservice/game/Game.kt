@@ -15,9 +15,13 @@ import com.kotlingirl.gameservice.communication.MoveMessage
 import com.kotlingirl.gameservice.communication.Topic
 import com.kotlingirl.gameservice.communication.User
 import com.kotlingirl.serverconfiguration.util.extensions.fromJsonString
+import org.springframework.context.annotation.Bean
 import org.springframework.web.socket.WebSocketSession
 
+
+@Component
 class Game(val count: Int) {
+
     companion object {
         private val log = logger()
         private val idGen = IntIdGen()

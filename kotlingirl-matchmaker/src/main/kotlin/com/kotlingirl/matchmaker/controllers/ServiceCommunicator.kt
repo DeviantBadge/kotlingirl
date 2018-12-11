@@ -74,7 +74,8 @@ class ServiceCommunicator {
         val response: ResponseEntity<String>
         try {
             response = restTemplate.postForEntity(
-                    "${game.serviceInstance.uri}$GAME_PATH$APPEND_PLAYER_PATH",
+                    "${game.serviceInstance.uri}$GAME_PATH$APPEND_PLAYER_PATH" +
+                            "?id=${game.id}",
                     credentials.toJsonHttpEntity(),
                     String::class.java)
 

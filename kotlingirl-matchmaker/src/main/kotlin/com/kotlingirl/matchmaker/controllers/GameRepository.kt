@@ -18,10 +18,18 @@ class GameRepository {
     lateinit var serviceCommunicator: ServiceCommunicator
 
     fun getCasualGame(parameters: UserRequestParameters?) =
-            games.poll() ?: serviceCommunicator.createCasualGame(parameters)
+            games.poll() ?: serviceCommunicator.createCasualGame(parameters).also {
+                it.incPlayers()
+                if (!it.ready)
+                    games.add(it)
+            }
 
-    fun appendPlayerToGame(game: MatchMakerGameUnit, credentials: UserCredentials):Unit =
+
+    fun appendPlayerToGame(game: MatchMakerGameUnit, credentials: UserCredentials): Unit =
             serviceCommunicator.appendPlayerToGame(game, credentials)
 
-
+    fun putBackIfNotReady(game: MatchMakerGameUnit) {
+        if (game.ready)
+            games.add(game)
+    }
 }

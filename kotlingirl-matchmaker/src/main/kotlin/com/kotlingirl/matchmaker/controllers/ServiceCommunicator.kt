@@ -4,7 +4,6 @@ import com.kotlingirl.serverconfiguration.GameServiceConstants.APPEND_PLAYER_PAT
 import com.kotlingirl.serverconfiguration.GameServiceConstants.CREATE_PATH
 import com.kotlingirl.serverconfiguration.GameServiceConstants.GAME_PATH
 import com.kotlingirl.serverconfiguration.GlobalConstants.GAME_SERVICE_NAME
-import com.kotlingirl.serverconfiguration.GlobalConstants.GAME_SERVICE_NAME_LOWER
 import com.kotlingirl.serverconfiguration.elements.InstanceInfoWrapper
 import com.kotlingirl.serverconfiguration.elements.InternalException
 import com.kotlingirl.serverconfiguration.elements.matchmaker.MatchMakerGameUnit
@@ -44,10 +43,10 @@ class ServiceCommunicator {
     fun createCasualGame(parameters: UserRequestParameters?): MatchMakerGameUnit {
         val serviceInstance: ServiceInstance
         val response: ResponseEntity<String>
-        eurekaClient.getInstancesByVipAddress(GAME_SERVICE_NAME_LOWER, false)
+        eurekaClient.getInstancesByVipAddress(GAME_SERVICE_NAME, false)
                 .forEach { log.error(it.instanceId) }
         try {
-            serviceInstance = getService(GAME_SERVICE_NAME_LOWER)
+            serviceInstance = getService(GAME_SERVICE_NAME)
             log.error(serviceInstance.instanceId)
             response = restTemplate.postForEntity(
                     "${serviceInstance.uri}$GAME_PATH$CREATE_PATH",
@@ -92,7 +91,7 @@ class ServiceCommunicator {
     }
 
     fun getService(serviceName: String): ServiceInstance {
-        val serviceInstance = (loadBalancer.choose(GAME_SERVICE_NAME_LOWER)
+        val serviceInstance = (loadBalancer.choose(GAME_SERVICE_NAME)
                 ?: throw InternalException(HttpStatus.INTERNAL_SERVER_ERROR, "Cant choose service to use")) as? RibbonLoadBalancerClient.RibbonServer
                 ?: throw InternalException(HttpStatus.INTERNAL_SERVER_ERROR, "Server use wrong loader, connect to developers")
         val instanceId = serviceInstance.server?.metaInfo?.instanceId

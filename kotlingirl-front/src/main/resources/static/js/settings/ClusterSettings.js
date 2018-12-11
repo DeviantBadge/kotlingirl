@@ -2,28 +2,28 @@ var ClusterSetting = function () {
     this.gameServer = {
         protocol: 'http',
         host: 'localhost',
-        port: '8080',
+        port: '8762',
         path: '/events/connect'
     };
 
     this.matchMaker = {
         protocol: 'http',
         host: 'localhost',
-        port: '8080',
-        path: '/matchmaker/'
+        port: '8762',
+        path: '/play/'
     };
 
     this.signIn = {
         protocol: 'http',
         host: 'localhost',
-        port: '8080',
+        port: '8762',
         path: '/registry/signIn'
     };
 
     this.register = {
         protocol: 'http',
         host: 'localhost',
-        port: '8080',
+        port: '8762',
         path: '/registry/register'
     };
 };

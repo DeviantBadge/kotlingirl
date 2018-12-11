@@ -14,11 +14,11 @@ spring:
 
       routes:
         - id: websocket_sockjs_route
-          uri: http://not.matter.org
+          uri: http://does.not.matter
           predicates:
-            - Path=/events/connect
+          - Path=/events/**
           filters:
-            - GameServiceFilter
+          - GameServiceFilter
 
 eureka:
   client:

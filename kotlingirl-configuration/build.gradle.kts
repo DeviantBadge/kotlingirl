@@ -45,8 +45,6 @@ dependencies {
     implementation(springBoot("web"))
     implementation(springBoot("actuator"))
 
-    implementation(springCloud("openfeign"))
-    implementation("org.springframework.cloud", "spring-cloud-config-server", "2.0.2.RELEASE")
     implementation(springCloud("netflix-ribbon"))
     implementation(springCloud("netflix-eureka-client"))
 

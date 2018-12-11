@@ -40,6 +40,7 @@ class MatchMakerController {
         // here can be an exception, its on first time
         // todo create loop for several attempts (stops when retry amount is very high or time was more than default)
         gameRepository.appendPlayerToGame(game, request.credentials!!)
+        gameRepository.putBackIfNotReady(game)
         return ResponseEntity.ok().body(MatchMakerGameResponse(game.serviceInstance.instanceId, game.id))
     }
 

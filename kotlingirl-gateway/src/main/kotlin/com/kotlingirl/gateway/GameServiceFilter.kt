@@ -1,7 +1,5 @@
 package com.kotlingirl.gateway
 
-import com.kotlingirl.serverconfiguration.GlobalConstants
-import com.kotlingirl.serverconfiguration.GlobalConstants.GAME_SERVICE_NAME_LOWER
 import com.netflix.appinfo.InstanceInfo
 import com.netflix.discovery.EurekaClient
 import org.apache.http.client.utils.URIBuilder
@@ -28,7 +26,6 @@ class GameServiceFilter : AbstractGatewayFilterFactory<Any>(Any::class.java) {
             val parameters = req.queryParams.toMutableMap()
             // todo remove debug output
             println(req.uri)
-            println(exchange.attributes[GATEWAY_REQUEST_URL_ATTR])
 
             val instance = getInfo(parameters["server"]?.firstOrNull())
                     ?: return@GatewayFilter chain.filter(exchange)
@@ -36,7 +33,6 @@ class GameServiceFilter : AbstractGatewayFilterFactory<Any>(Any::class.java) {
 
             val newUri = buildNewUri(instance, req.uri, parameters);
             exchange.attributes[GATEWAY_REQUEST_URL_ATTR] = newUri
-            println(exchange.attributes[GATEWAY_REQUEST_URL_ATTR])
 
             val newReq = req.mutate()
                     .uri(newUri)
@@ -46,14 +42,13 @@ class GameServiceFilter : AbstractGatewayFilterFactory<Any>(Any::class.java) {
                     .build()
 
             println(exc.request.uri)
-            println(exc.attributes)
 
             val route = exchange.getAttribute<Route>(GATEWAY_ROUTE_ATTR)
                     ?: return@GatewayFilter chain.filter(exchange)
-            println(route)
 
             val newRoute = buildNewRoute(route, newUri)
             exchange.attributes[GATEWAY_ROUTE_ATTR] = newRoute
+            println(newRoute)
 
             chain.filter(exchange.mutate().request(newReq).build())
         }
@@ -61,7 +56,7 @@ class GameServiceFilter : AbstractGatewayFilterFactory<Any>(Any::class.java) {
 
     // todo remove starts with
     fun getInfo(serverName: String?): InstanceInfo? = eurekaClient
-            .getInstancesByVipAddress(GAME_SERVICE_NAME_LOWER, false)
+            .getInstancesByVipAddress("kotlingirl-gameservice", false)
             .firstOrNull { it.instanceId.startsWith(serverName ?: "___") }
 
     fun buildNewUri(instance: InstanceInfo, oldUri: URI, parameters: Map<String?, List<String?>>) =
@@ -71,7 +66,6 @@ class GameServiceFilter : AbstractGatewayFilterFactory<Any>(Any::class.java) {
                     .replaceQueryParams(CollectionUtils.toMultiValueMap(parameters))
                     .build().encode()
                     .toUri()
-                    .also { println(it) }
 
     fun buildNewRoute(oldRoute: Route, newUri: URI) = Route.AsyncBuilder()
             .id(oldRoute.id)

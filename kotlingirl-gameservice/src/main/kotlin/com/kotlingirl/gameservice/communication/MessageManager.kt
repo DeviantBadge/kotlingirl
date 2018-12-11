@@ -3,6 +3,7 @@ package com.kotlingirl.gameservice.communication
 import com.kotlingirl.gameservice.game.Mechanics
 import com.kotlingirl.gameservice.game.Tile
 import com.kotlingirl.serverconfiguration.util.extensions.logger
+import com.kotlingirl.serverconfiguration.util.extensions.toJsonString
 import org.springframework.web.socket.WebSocketSession
 import java.rmi.activation.UnknownObjectException
 import java.util.concurrent.ConcurrentLinkedQueue

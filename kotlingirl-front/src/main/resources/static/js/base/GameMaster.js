@@ -18,6 +18,7 @@ var GameMaster = function () {
         password : ""
     };
     this.gameId = "";
+    this.server = "";
 };
 
 // ************************************************
@@ -97,11 +98,12 @@ GameMaster.prototype.initCanvas = function () {
 // here we manage our game state
 // ************************************************
 
-GameMaster.prototype.startGame = function (gameID) {
+GameMaster.prototype.startGame = function (mmResponse) {
     this.menu.hide();
-    this.gameId = gameID;
+    this.gameId = mmResponse.gameId;
+    this.server = mmResponse.server;
     this.game = new Game(this.gameStage);
-    this.game.start(gameID);
+    this.game.start(mmResponse);
 };
 
 GameMaster.prototype.finishGame = function (gameOverText) {

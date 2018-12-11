@@ -38,7 +38,7 @@ tasks.withType<KotlinCompile> {
 }
 
 dependencies {
-    implementation(project(":kotlingirl-configuration"))
+//    implementation(project(":kotlingirl-configuration"))
 
     implementation("com.alibaba", "fastjson", "1.2.54")
     implementation("org.slf4j", "slf4j-api", "1.7.25")
@@ -63,7 +63,7 @@ ext["springBootVersion"] = "2.0.5.RELEASE"
 configure<DependencyManagementExtension> {
     imports {
         mavenBom("org.springframework.cloud:spring-cloud-dependencies:${ext["springCloudVersion"]}")
-        mavenBom("org.springframework.cloud:spring-cloud-gateway:2.0.1.RELEASE")
+//        mavenBom("org.springframework.cloud:spring-cloud-gateway:2.0.1.RELEASE")
         mavenBom("org.springframework.boot:spring-boot-dependencies:${ext["springBootVersion"]}")
     }
 }

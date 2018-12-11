@@ -39,7 +39,7 @@ tasks.withType<KotlinCompile> {
 }
 
 dependencies {
-    implementation(project(":kotlingirl-configuration"))
+//    implementation(project(":kotlingirl-configuration"))
 
     implementation(kotlin("stdlib-jdk8"))
     implementation(kotlin("reflect"))

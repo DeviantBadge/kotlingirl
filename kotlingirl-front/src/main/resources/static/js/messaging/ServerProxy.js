@@ -30,9 +30,13 @@ ServerProxy.prototype.setupMessaging = function() {
     });
 };
 
-ServerProxy.prototype.connectToGameServer = function(gameId) {
-    this.socket = new SockJS(gClusterSettings.gameServerUrl()
-        + "?name=" + GM.credentials.name
+ServerProxy.prototype.connectToGameServer = function(mmResponse) {
+    console.log(gClusterSettings.gameServerUrl()
+        + "?server=" + GM.server
+        + "&gameId=" + GM.gameId);
+
+    this.socket = new SockJS("http://localhost:8762/events/connect"
+        + "?server=" + GM.server
         + "&gameId=" + GM.gameId
     );
     var self = this;
@@ -40,6 +44,7 @@ ServerProxy.prototype.connectToGameServer = function(gameId) {
 
     this.socket.onmessage = function (event) {
         var msg = JSON.parse(event.data);
+        // console.log(msg);
         if (self.handler[msg.topic] === undefined) {
             return;
         }
@@ -57,7 +62,7 @@ ServerProxy.prototype.connectToGameServer = function(gameId) {
             data: {
             }
         };
-        self.socket.send(JSON.stringify(template));
+        // self.socket.send(JSON.stringify(template));
     };
 
     this.socket.onclose = function (event) {

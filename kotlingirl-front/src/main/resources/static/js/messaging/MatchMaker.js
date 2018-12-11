@@ -12,7 +12,7 @@ MatchMaker.prototype.getSettings = function (parameters) {
     };
 };
 
-MatchMaker.prototype.getSessionId = function (parameters) {
+MatchMaker.prototype.getGame = function (parameters) {
     switch (parameters.gameType) {
         case "casual":
         case "ranked":
@@ -26,15 +26,17 @@ MatchMaker.prototype.getSessionId = function (parameters) {
     var settings = this.getSettings(parameters);
     settings.data = JSON.stringify(parameters);
 
-    var sessionId = null;
-    $.ajax(settings).done(function(id) {
-        sessionId = id;
-        console.log("This lobby id - " + id);
+    console.log(JSON.stringify(parameters));
+
+    var mmResponse = null;
+    $.ajax(settings).done(function(response) {
+        mmResponse = response;
+        console.log("response - " + response);
     }).fail(function (jqXHR, textStatus) {
         alert("Matchmaker request failed");
     });
 
-    return sessionId;
+    return mmResponse;
 };
 
 gMatchMaker = new MatchMaker(gClusterSettings);

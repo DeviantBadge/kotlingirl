@@ -1,5 +1,6 @@
 package com.kotlingirl.gameservice.game
 
+import com.alibaba.fastjson.annotation.JSONField
 import kotlin.math.max
 import kotlin.math.min
 
@@ -29,7 +30,9 @@ data class Point(var x: Int = 0, var y: Int = 0) : Collider {
  * (It does not matter, which opposite corners you choose to define bar)
  */
 open class Bar(firstCornerX: Int, firstCornerY: Int, secondCornerX: Int, secondCornerY: Int) : Collider {
+    @JSONField(serialize = false)
     var leftBottomCorner = Point(min(firstCornerX, secondCornerX), min(firstCornerY, secondCornerY))
+    @JSONField(serialize = false)
     var rightTopCorner = Point(max(firstCornerX, secondCornerX), max(firstCornerY, secondCornerY))
 
     constructor(firstCorner: Point, secondCorner: Point) :

@@ -144,19 +144,19 @@ MainMenu.prototype.toggleWindow = function () {
 
 MainMenu.prototype.playCasual = function () {
     console.log("Wanna play casual match? hahahahahahaaaaaaaa");
-    const gameID = gMatchMaker.getSessionId(this.casualParameters);
-    if (gameID !== null) {
+    const mmResponse = gMatchMaker.getGame(this.casualParameters);
+    if (mmResponse !== null) {
         this.toggleWindow();
-        GM.startGame(gameID);
+        GM.startGame(mmResponse);
     }
 };
 
 MainMenu.prototype.playRanked = function () {
     console.log("Wanna play ranked match? hahahahahahaaaaaaaa");
-    const gameID = gMatchMaker.getSessionId(this.rankedParameters);
-    if (gameID !== null) {
+    const mmResponse = gMatchMaker.getGame(this.rankedParameters);
+    if (mmResponse !== null) {
         this.toggleWindow();
-        GM.startGame(gameID);
+        GM.startGame(mmResponse);
     }
 };
 

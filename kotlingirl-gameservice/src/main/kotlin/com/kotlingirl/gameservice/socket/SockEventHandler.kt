@@ -42,7 +42,6 @@ class SockEventHandler : TextWebSocketHandler() {
     override fun handleTextMessage(session: WebSocketSession, message: TextMessage) {
         logger().info("Got message - ${message.payload}")
         sessions2games[session]?.receive(session, message.payload)
-
     }
 
     override fun afterConnectionClosed(session: WebSocketSession, closeStatus: CloseStatus) {

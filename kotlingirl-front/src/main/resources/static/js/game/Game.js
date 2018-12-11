@@ -10,10 +10,10 @@ var Game = function (stage) {
     this.serverProxy = null;
 };
 
-Game.prototype.start = function (gameID) {
+Game.prototype.start = function (mmResponse) {
     gInputEngine.setupBindings();
     this.serverProxy = new ServerProxy();
-    this.serverProxy.connectToGameServer(gameID);
+    this.serverProxy.connectToGameServer(mmResponse);
     this.drawBackground();
 
     var self = this;

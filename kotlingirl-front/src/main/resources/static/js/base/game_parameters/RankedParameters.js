@@ -1,6 +1,6 @@
 var RankedParameters = function () {
     this.playerAmount = 2;
-    this.gameType = "ranked";
+    this.gameType = "casual";
     this.credentials = {};
 };
 

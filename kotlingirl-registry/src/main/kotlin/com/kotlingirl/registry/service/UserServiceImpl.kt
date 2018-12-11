@@ -41,9 +41,8 @@ class UserServiceImpl: UserService {
 
     override fun updateUserRating(ratingDelta: Int, playerId: Long): Player {
 
-        var player: Player? = playerRepository.findById(playerId).orElse(null)
+        var player: Player = playerRepository.findById(playerId).orElse(null)
 
-        player!!
         player.rating += ratingDelta
         return playerRepository.save(player)
     }

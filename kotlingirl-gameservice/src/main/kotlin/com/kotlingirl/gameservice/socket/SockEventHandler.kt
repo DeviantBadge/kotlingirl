@@ -32,7 +32,7 @@ class SockEventHandler : TextWebSocketHandler() {
 //        val userId = idGen.getId()
         val game = gameRepository.getGame(gameId) ?: Game(0)
         synchronized(game){
-            game.linkUser(session)
+            game.linkUser(session, User(""))
             sessions2games[session] = game
             if (game.curCountOfPlayers() == game.count)
             game.start()

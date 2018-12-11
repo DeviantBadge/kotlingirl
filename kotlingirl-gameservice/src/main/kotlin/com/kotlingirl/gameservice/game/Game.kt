@@ -53,6 +53,11 @@ class Game(val count: Int) {
         mechanics.createPawn(session, user)
     }
 
+    fun linkUser(session: WebSocketSession, user: User) {
+        connectionPool.add(session, user)
+        mechanics.createPawn(session, user)
+    }
+
     fun receive(session: WebSocketSession, msg: String){
 //        log.info("RECEIVED: $msg")
         val message: Message = msg.fromJsonString()

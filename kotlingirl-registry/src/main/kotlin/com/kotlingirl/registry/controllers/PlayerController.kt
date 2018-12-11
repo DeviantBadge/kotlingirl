@@ -1,19 +1,15 @@
 package com.kotlingirl.registry.controllers
 
 import com.kotlingirl.registry.model.Player
-import com.kotlingirl.registry.repositories.PlayerRepository
 import com.kotlingirl.registry.service.UserService
 import com.kotlingirl.serverconfiguration.RegistryConstants
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
-import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PatchMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.*
+import sun.security.util.Password
 
-@Controller
+@RestController
 @RequestMapping(RegistryConstants.USERS_PATH)
 class PlayerController {
 
@@ -23,36 +19,30 @@ class PlayerController {
     @PostMapping(
             path = ["/registration"],
             consumes = [MediaType.APPLICATION_JSON_VALUE])
-    fun registration(login: String, password: String): Player {
-        return userService.registrateUser(login, password)
+    fun registration(@RequestBody credentionalDTO: CredentionalDTO): Player {
+        return userService.registrateUser(credentionalDTO.login, credentionalDTO.password)
     }
 
-    @GetMapping(
-            path = ["/login"],
-            consumes = [MediaType.APPLICATION_JSON_VALUE])
-    fun login(name: String, password: String): Player {
-        return userService.login(name, password)
+    @GetMapping(path = ["/login/{login}/{password}"])
+    fun login(@PathVariable login: String, @PathVariable password: String): Player {
+        return userService.login(login, password)
     }
 
-    @PatchMapping(
-            path = ["/update"],
-            consumes = [MediaType.APPLICATION_JSON_VALUE])
+    @PatchMapping(path = ["/update"])
     fun update(player: Player): Player {
         return userService.updateUser(player)
 
     }
 
-    @GetMapping(
-            path = ["/allUsers"],
-            consumes = [MediaType.APPLICATION_JSON_VALUE])
+    @GetMapping(path = ["/allUsers"])
     fun getAllUsers(): MutableList<Player> {
         return userService.getAllUsers()
     }
 
-    @GetMapping(
+/*    @GetMapping(
             path = ["/onlineUsers"],
             consumes = [MediaType.APPLICATION_JSON_VALUE])
     fun getOnlineUsers(): List<Player> {
         return userService.getAllOnlineUser()
-    }
+    }*/
 }

@@ -1,14 +1,16 @@
 package com.kotlingirl.registry.model
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import java.util.*
 import javax.persistence.*
 
 @Entity
 @Table(name = "player", schema = "game")
+@JsonIgnoreProperties("password")
 data class Player(
         @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-        var id: Long = -1,
+        @GeneratedValue(strategy = GenerationType.AUTO)
+        var id: Long,
 
         @Column(name = "games_played")
         var gamesPlayed: Int = 0,
@@ -34,8 +36,8 @@ data class Player(
         @Column(name = "logged")
         var logged: Boolean = false,
 
-        @OneToMany()
-    @Column(name = "current_game")
+        //@OneToMany()
+        @Column(name = "current_game")
         var currentGame: Long? = null
 )
 {

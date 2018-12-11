@@ -14,7 +14,7 @@ class UserServiceImpl: UserService {
     lateinit var playerRepository: PlayerRepository
 
     override fun login(login: String, password: String): Player {
-        val player: Player = playerRepository.findByLogin(login)
+        val player: Player = playerRepository.findByLogin(login) ?: throw NullPointerException("Игрок с таким логином не найден")
         if (player.password == password && !player.logged) {
             player.logged = true
             return playerRepository.save(player)
@@ -24,8 +24,8 @@ class UserServiceImpl: UserService {
     }
 
     override fun registrateUser(login: String, password: String): Player {
-        val player: Player? = playerRepository.findByLogin(login)
         checkUser(login)
+        var player: Player? = playerRepository.findByLogin(login)
         if(player != null) throw InternalException(HttpStatus.BAD_REQUEST, "This name already registrated")
         return playerRepository.save(Player(login, password))
     }

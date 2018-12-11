@@ -7,6 +7,6 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource
 
 @RepositoryRestResource(collectionResourceRel = "users", path = "users")
 interface PlayerRepository : JpaRepository<Player, Long> {
-    fun findByLogin(name: String): Player
-    fun findAllByLogged()
+    fun findByLogin(name: String): Player?
+    //fun findAllByLogged()
 }

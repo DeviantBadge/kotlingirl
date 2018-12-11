@@ -35,7 +35,9 @@ class MessageManager(private val mechanics: Mechanics, private val broker: Broke
 
                     Topic.PLANT_BOMB, Topic.JUMP -> {
                         val bomb = mechanics.plantBomb(pair.first)
-                        objects.add(0, bomb.dto)
+                        if (bomb != null) {
+                            objects.add(0, bomb.dto)
+                        }
                     }
 
                     else -> throw UnknownObjectException("Not such Topic type")
@@ -63,7 +65,8 @@ class MessageManager(private val mechanics: Mechanics, private val broker: Broke
                 broker.send(session, Topic.GAME_OVER, "Game Over"); badSessions.add(session)
             }
         }
-        //badSessions.forEach { mechanics.pawns.remove(it) }
+        badSessions.forEach { mechanics.pawns.remove(it) }
+        badSessions.forEach { it.close() }
     }
 
     private fun consumeBombs(elapsed: Long) {

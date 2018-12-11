@@ -15,6 +15,12 @@ interface Collider {
  * 2D point with integer coordinates
  */
 data class Point(var x: Int = 0, var y: Int = 0) : Collider {
+
+    constructor(other: Point) : this() {
+        this.x = other.x
+        this.y = other.y
+    }
+
     override fun isColliding(other: Collider) = when (other::class) {
         Point::class -> this == other
         Bar::class -> this in other as Bar

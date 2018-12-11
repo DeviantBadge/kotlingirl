@@ -10,7 +10,10 @@ import org.springframework.web.socket.WebSocketSession
 
 typealias Line = Array < MutableList <Any> >
 typealias Matrix = ArrayList <Line>
+typealias Coord = Point
 
+operator fun Matrix.get(coord: Coord) = this[coord.x][coord.y]
+operator fun Matrix.set(coord: Coord, obj: Any) { this[coord.x][coord.y].add(obj) }
 class Mechanics {
 
     val h = 17
@@ -19,6 +22,7 @@ class Mechanics {
     val field = Matrix()
     var pawns = HashMap<WebSocketSession, Pawn>()
     var bombs = mutableListOf<Bomb>()
+    var bomb2player = mutableMapOf<Bomb, Pawn>()
     var fires = mutableListOf<Fire>()
 
     fun createPawn(session: WebSocketSession, user: User) {
@@ -44,75 +48,82 @@ class Mechanics {
 
     fun checkColliding(pawn: Pawn): Boolean {
         val neighbours = pawn.coords.map { findNeighbour(it, pawn.direction) }
+        val bar = Bar(Point(pawn.bar.leftBottomCorner.x - pawn.velocity, pawn.bar.leftBottomCorner.y - pawn.velocity),
+                Point(pawn.bar.rightTopCorner.x + pawn.velocity, pawn.bar.rightTopCorner.y + pawn.velocity))
         return neighbours.map {
-            val cell = field[it.x][it.y]
-            if (cell.isNotEmpty() && cell.last() is Tile) {
-                val bar = Bar(Point(pawn.bar.leftBottomCorner.x - pawn.velocity, pawn.bar.leftBottomCorner.y - pawn.velocity),
-                                Point(pawn.bar.rightTopCorner.x + pawn.velocity, pawn.bar.rightTopCorner.y + pawn.velocity))
-                bar.isColliding(Bar(coordToPoint(it), Point(coordToPoint(it).x + 31, coordToPoint(it).y + 31)))
-            }
-            else
-                false }
+                    val cell = field[it.x][it.y]
+                    if (cell.isNotEmpty()) {
+                        val element = cell.last()
+                        when(element) {
+                             is Tile -> bar.isColliding(Bar(coordToPoint(it), Point(coordToPoint(it).x + 31, coordToPoint(it).y + 31)))
+                             is Bomb -> bar.isColliding(element.bar)
+                            else -> false
+                        }
+                    }
+                    else false }
                 .reduce{first, second -> first || second}
     }
 
-    private fun findNeighbour(point: Point, direction: String): Point {
+    private fun findNeighbour(coord: Coord, direction: String): Coord {
         when(direction) {
             "UP" -> {
-                if (point.y + 1 <= h - 1)
-                    return Point(point.x, point.y + 1)
+                if (coord.y + 1 <= h - 1)
+                    return Point(coord.x, coord.y + 1)
             }
             "DOWN" -> {
-                if (point.y - 1 >= 0)
-                    return Point(point.x, point.y - 1)
+                if (coord.y - 1 >= 0)
+                    return Point(coord.x, coord.y - 1)
             }
             "LEFT" -> {
-                if (point.x - 1 >= 0)
-                    return Point(point.x - 1, point.y)
+                if (coord.x - 1 >= 0)
+                    return Point(coord.x - 1, coord.y)
             }
             "RIGHT" -> {
-                if (point.x + 1 <= w - 1)
-                    return Point(point.x + 1, point.y)
+                if (coord.x + 1 <= w - 1)
+                    return Point(coord.x + 1, coord.y)
             }
 /*            "UP-RIGHT" -> {
-                if (point.x + 1 <= w - 1 && point.y + 1 <= h - 1)
-                    return Point(point.x + 1, point.y + 1)
+                if (coord.x + 1 <= w - 1 && coord.y + 1 <= h - 1)
+                    return Point(coord.x + 1, coord.y + 1)
             }
             "UP-LEFT" -> {
-                if (point.x - 1 >= 0 && point.y + 1 <= h - 1)
-                    return Point(point.x - 1, point.y + 1)
+                if (coord.x - 1 >= 0 && coord.y + 1 <= h - 1)
+                    return Point(coord.x - 1, coord.y + 1)
             }
             "DOWN-RIGHT" -> {
-                if (point.x + 1 <= w - 1 && point.y - 1 >= 0)
-                    return Point(point.x + 1, point.y - 1)
+                if (coord.x + 1 <= w - 1 && coord.y - 1 >= 0)
+                    return Point(coord.x + 1, coord.y - 1)
             }
             "DOWN-LEFT" -> {
-                if (point.x - 1 >= 0 && point.y - 1 >= 0)
-                    return Point(point.x - 1, point.y - 1)
+                if (coord.x - 1 >= 0 && coord.y - 1 >= 0)
+                    return Point(coord.x - 1, coord.y - 1)
             }*/
-            else -> return point
+            else -> return coord
         }
-        return point
+        return coord
     }
 
-    fun plantBomb(session: WebSocketSession): Bomb {
-        var bomb = Bomb(0, Point(0, 0))
+    fun plantBomb(session: WebSocketSession): Bomb? {
+        var bomb: Bomb? = null
         val pawn = pawns[session]
-        if (pawn != null) {
+        if (pawn != null && pawn.bombsCount > 0) {
             with(pawn) {
-                bomb = Bomb(idGen.getId(), Point(bar.leftBottomCorner.x, bar.leftBottomCorner.y))
+                bomb = Bomb(idGen.getId(), coordToPoint(pointToCoord(Point(bar.leftBottomCorner.x, bar.leftBottomCorner.y))))
+                bombsCount--
+                bomb2player[bomb!!] = this
+                bombs.add(bomb!!)
+                field[pointToCoord(bomb!!.position)] = bomb!!
             }
         }
-        bombs.add(bomb)
         return bomb
     }
 
     fun explose(bomb: Bomb): List<Any> {
         bomb.explosed = true
         val coord = pointToCoord(bomb.position)
-        val directions = listOf("UP", "DOWN", "LEFT", "RIGHT", "UP-RIGHT", "UP-LEFT", "DOWN-RIGHT", "DOWN-LEFT")
-        val neighbours = mutableListOf(coord)
-        pawns.values.forEach { if (it.coords.contains(coord)) it.alive = false }
+        val directions = listOf("UP", "DOWN", "LEFT", "RIGHT", "")
+        val neighbours = mutableListOf<Point>()
+        //pawns.values.forEach { if (it.coords.contains(coord)) it.alive = false }
         directions.forEach { dir ->
             val neighbour = findNeighbour(coord, dir)
             pawns.values.forEach { if (it.coords.contains(neighbour)) it.alive = false }
@@ -121,14 +132,16 @@ class Mechanics {
         val woods = neighbours.filter { field[it.x][it.y].isNotEmpty() }
                 .filter { field[it.x][it.y].last() is Wood }
         val returnWoods = woods.map{ field[it.x][it.y].last() as Wood }
-        woods.forEach { fires.add(Fire(idGen.getId(), coordToPoint(Point(it.x, it.y)))) }
+        neighbours.forEach { fires.add(Fire(idGen.getId(), coordToPoint(it))) }
         // после того, как мы сгенерировали выходной массив и огонь, можем удалить ящики из матрицы
         woods.forEach { field[it.x][it.y].clear() }
+        bomb2player[bomb]!!.bombsCount++
+        field[coord].clear()
         return returnWoods
     }
 
-    private fun coordToPoint(coord: Point): Point  = Point(coord.x * tileSize, coord.y * tileSize)
-    private fun pointToCoord(point: Point): Point  = Point(point.x / tileSize, point.y / tileSize)
+    private fun coordToPoint(coord: Coord): Point  = Point(coord.x * tileSize, coord.y * tileSize)
+    private fun pointToCoord(point: Point): Coord  = Coord(point.x / tileSize, point.y / tileSize)
 
     private fun initMatrix() {
         for(i in 0..(w - 1)) {

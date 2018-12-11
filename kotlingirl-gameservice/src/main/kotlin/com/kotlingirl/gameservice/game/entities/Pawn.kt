@@ -24,6 +24,7 @@ class Pawn(val id: Int, val count: Int) : Tickable {
     var coords = mutableSetOf<Point>()
     var bar = Bar(position, position)
     val velocity = 2
+    var bombsCount = 1
 
     override fun tick(elapsed: Long) {
         if (alive) {

@@ -15,6 +15,7 @@ import com.kotlingirl.gameservice.communication.Topic
 import com.kotlingirl.gameservice.communication.User
 import com.kotlingirl.gameservice.game.entities.Tile
 import com.kotlingirl.serverconfiguration.util.extensions.fromJsonString
+import org.springframework.context.annotation.Scope
 import org.springframework.web.socket.WebSocketSession
 
 

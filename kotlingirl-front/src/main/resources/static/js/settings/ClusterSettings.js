@@ -29,24 +29,28 @@ var ClusterSetting = function () {
 };
 // todo make gui
 
-ClusterSetting.prototype.gameServerUrl = function() {
-    return makeUrl(this.gameServer)
+ClusterSetting.prototype.gameServerPath = function() {
+    return makePath(this.gameServer)
 };
 
-ClusterSetting.prototype.matchMakerUrl = function() {
-    return makeUrl(this.matchMaker)
+ClusterSetting.prototype.matchMakerPath = function() {
+    return makePath(this.matchMaker)
 };
 
-ClusterSetting.prototype.signInUrl = function() {
-    return makeUrl(this.signIn)
+ClusterSetting.prototype.signInPath = function() {
+    return makePath(this.signIn)
 };
 
-ClusterSetting.prototype.registerUrl = function() {
-    return makeUrl(this.register)
+ClusterSetting.prototype.registerPath = function() {
+    return makePath(this.register)
 };
 
 function makeUrl(data) {
     return data['protocol'] + "://" + data['host'] + ":" + data['port'] + data['path']
+}
+
+function makePath(data) {
+    return data['path']
 }
 
 var gClusterSettings = new ClusterSetting();

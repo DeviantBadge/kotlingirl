@@ -41,7 +41,7 @@ LoginWindow.prototype.initialize = function (clusterSettings) {
     this.initStage();
 
     this.signInRequest = {
-        url: clusterSettings.signInUrl(),
+        url: clusterSettings.signInPath(),
         method: "POST",
         contentType: 'application/json',
         crossDomain: true,
@@ -49,7 +49,7 @@ LoginWindow.prototype.initialize = function (clusterSettings) {
     };
 
     this.registerRequest = {
-        url: clusterSettings.registerUrl(),
+        url: clusterSettings.registerPath(),
         method: "POST",
         contentType: 'application/json',
         crossDomain: true,

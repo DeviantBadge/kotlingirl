@@ -20,6 +20,7 @@ import org.springframework.web.socket.WebSocketSession
 
 
 @Component
+@Scope("prototype")
 class Game(val count: Int) {
 
     companion object {

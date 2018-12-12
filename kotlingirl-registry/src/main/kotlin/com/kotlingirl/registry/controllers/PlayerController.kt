@@ -28,8 +28,9 @@ class PlayerController {
         return userService.login(login, password)
     }
 
-    @PatchMapping(path = ["/update"])
-    fun update(player: Player): Player {
+    @PatchMapping(path = ["/update"],
+            consumes = [MediaType.APPLICATION_JSON_VALUE])
+    fun update(@RequestBody player: Player): Player {
         return userService.updateUser(player)
 
     }
@@ -39,10 +40,21 @@ class PlayerController {
         return userService.getAllUsers()
     }
 
-/*    @GetMapping(
-            path = ["/onlineUsers"],
-            consumes = [MediaType.APPLICATION_JSON_VALUE])
+    @GetMapping(
+            path = ["/onlineUsers"])
     fun getOnlineUsers(): List<Player> {
         return userService.getAllOnlineUser()
-    }*/
+    }
+
+    @PostMapping(
+            path = ["/updateUserRating/{id}"])
+    fun changeRating(@RequestParam deltaRating: Int, @PathVariable id : Long): Player {
+        return userService.updateUserRating(deltaRating, id)
+    }
+
+    @PostMapping(
+            path = ["/setRating/{id}"])
+    fun setRating(@RequestParam deltaRating: Int, @PathVariable id : Long): Player {
+        return userService.setUserRating(deltaRating, id)
+    }
 }

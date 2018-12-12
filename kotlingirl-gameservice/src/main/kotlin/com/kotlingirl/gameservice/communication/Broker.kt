@@ -18,13 +18,13 @@ class Broker(private val connectionPool: ConnectionPool) {
     fun send(session: WebSocketSession, topic: Topic, data: Any) {
         val message = Replica(topic, data).toJsonString()
         //val session = connectionPool.getSession(player)
-//        log.info(message)
+        log.info("send: $message")
         connectionPool.send(session, message)
     }
 
     fun broadcast(topic: Topic, data: Any) {
         val message = Replica(topic, data).toJsonString()
-//        log.info(message)
+        log.info(message)
         connectionPool.broadcast(message)
     }
 

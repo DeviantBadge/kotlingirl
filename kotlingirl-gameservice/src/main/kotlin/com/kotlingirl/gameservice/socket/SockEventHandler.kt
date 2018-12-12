@@ -32,7 +32,6 @@ class SockEventHandler : TextWebSocketHandler() {
         logger().info("Logged user got such params - $uriParams")
         val gameId = uriParams["gameId"]?.toInt() ?: -1
         val userId = uriParams["userId"]?.toLong() ?: -1
-//        val userId = idGen.getId()
         val game = gameRepository.getGame(gameId) ?: Game(0)
         synchronized(game){
             if (!game.users.any { it.userId == userId && !it.linked}) {
@@ -41,8 +40,18 @@ class SockEventHandler : TextWebSocketHandler() {
             }
             game.linkUser(session)
             sessions2games[session] = game
-            if (game.curCountOfPlayers() == game.count)
-            game.start()
+/*            if(game.curCountOfPlayers() == game.count) {
+                game.start()
+            }*/// todo uncomment
+            if (game.curCountOfPlayers() == game.count) {
+                game.mainInit()
+            } else {
+                if (game.curCountOfPlayers() == 1) {
+                    game.start()
+                } else {
+                    game.warmInit(session)
+                }
+            }
         }
     }
 

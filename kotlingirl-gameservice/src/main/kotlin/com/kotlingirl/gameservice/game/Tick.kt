@@ -4,6 +4,7 @@ package com.kotlingirl.gameservice.game
 import com.kotlingirl.gameservice.communication.Replica
 import com.kotlingirl.gameservice.communication.MessageManager
 import com.kotlingirl.gameservice.game.entities.Pawn
+import com.kotlingirl.gameservice.game.entities.Tile
 import com.kotlingirl.serverconfiguration.util.extensions.logger
 import org.springframework.web.socket.WebSocketSession
 import java.util.concurrent.ConcurrentLinkedDeque
@@ -11,6 +12,8 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.LockSupport
 
 class Ticker {
+    @Volatile
+    var isWarm = true
     private val tickables = ConcurrentLinkedDeque<Tickable>()
     var tickNumber: Long = 0
     var pawns = HashMap<WebSocketSession, Pawn>()
@@ -19,6 +22,11 @@ class Ticker {
 
     fun gameLoop() {
         while (!Thread.currentThread().isInterrupted) {
+            if (!isWarm) {
+                initMain()
+                isWarm = true
+                messageManager.endWarm()
+            }
             val started = System.currentTimeMillis()
             val replica = act(FRAME_TIME)
             val elapsed = System.currentTimeMillis() - started
@@ -32,6 +40,10 @@ class Ticker {
 //            log.info("{}: tick ", tickNumber)
             tickNumber++
         }
+    }
+
+    fun initMain() {
+        messageManager.mainInit()
     }
 
     fun registerTickable(tickable: Tickable) {
@@ -99,5 +111,6 @@ class Ticker {
         private val log = logger()
         const val FPS = 60
         private const val FRAME_TIME = (1000 / FPS).toLong()
+
     }
 }

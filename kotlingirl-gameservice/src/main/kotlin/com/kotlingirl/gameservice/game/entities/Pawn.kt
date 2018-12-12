@@ -5,8 +5,12 @@ import com.kotlingirl.gameservice.game.Bar
 import com.kotlingirl.gameservice.game.Point
 import com.kotlingirl.gameservice.game.Tickable
 
-class Pawn(val id: Int, val count: Int) : Tickable {
-
+class Pawn(val count: Int) : Tickable {
+    var id: Int = 0
+        set(value) {
+            field = value
+            dto.id = value
+        }
     var position = Point(0, 0)
     val pawnSize = 32
     val halfpawnSize = pawnSize / 2
@@ -23,8 +27,10 @@ class Pawn(val id: Int, val count: Int) : Tickable {
         }
     var coords = mutableSetOf<Point>()
     var bar = Bar(position, position)
-    val velocity = 2
+    var velocity = 1
     var bombsCount = 1
+    var bombStrength = 1
+    var deadTime = 100
 
     override fun tick(elapsed: Long) {
         if (alive) {
@@ -47,6 +53,8 @@ class Pawn(val id: Int, val count: Int) : Tickable {
             } else {
                 direction = ""
             }
+        } else {
+            deadTime--
         }
 
     }
@@ -57,6 +65,14 @@ class Pawn(val id: Int, val count: Int) : Tickable {
         changeBarPosition()
         dto.position = position
         changeCoords()
+    }
+
+    fun applyBonus(bonus: Bonus) {
+        when(bonus) {
+            is BonusBomb -> bombsCount++
+            is BonusSpeed -> velocity++
+            is BonusExplosion -> bombStrength++
+        }
     }
 
     private fun updatePosition() {

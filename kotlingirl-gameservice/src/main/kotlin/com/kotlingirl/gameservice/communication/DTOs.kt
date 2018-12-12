@@ -16,7 +16,7 @@ data class User(val userId: Long) {
     var linked = false
     lateinit var webSocketSession: WebSocketSession
 }
-data class PawnDto(val id: Int, var position: Point = Point(0, 0),
+data class PawnDto(var id: Int, var position: Point = Point(0, 0),
                    var direction: String = "", val type: String = "Pawn",
                    var alive: Boolean = true, val count: Int) {
     override fun equals(other: Any?): Boolean {

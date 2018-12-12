@@ -12,4 +12,5 @@ interface UserService {
     fun updateUser(player: Player): Player
     fun getAllUsers(): MutableList<Player>
     fun getAllOnlineUser(): List<Player>
+    fun setUserRating(newRating: Int, playerId: Long): Player
 }

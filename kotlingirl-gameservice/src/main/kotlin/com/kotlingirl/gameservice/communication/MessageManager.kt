@@ -149,7 +149,9 @@ class MessageManager(private val mechanics: Mechanics, private val broker: Broke
             }
         }
         mechanics.pawns.values.forEach { replicas.add(it.dto) }
-        broker.send(session, Topic.REPLICA, Data(replicas, false))    }
+        mechanics.bonuses.forEach { replicas.add(it) }
+        broker.send(session, Topic.REPLICA, Data(replicas, false))
+    }
 
     fun mainInit() {
         val count = mechanics.pawns.size - 1

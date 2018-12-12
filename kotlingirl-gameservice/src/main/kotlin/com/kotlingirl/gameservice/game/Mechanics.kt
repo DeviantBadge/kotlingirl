@@ -61,6 +61,7 @@ class Mechanics {
             }
             it.changePosition(coordToPoint(curCoord))
             it.id = idGen.getId()
+            it.reset()
         }
     }
 
@@ -73,9 +74,18 @@ class Mechanics {
                     if (cell.isNotEmpty()) {
                         val element = cell.last()
                         when(element) {
-                            is Tile -> bar.isColliding(Bar(coordToPoint(it), Point(coordToPoint(it).x + 31, coordToPoint(it).y + 31)))
+                            is Tile -> {
+                                bar.isColliding(Bar(coordToPoint(it), Point(coordToPoint(it).x + 31, coordToPoint(it).y + 31)))
+/*                                if(bar.isColliding(element)) {
+                                    pawn.steps = stepCounter(pawn, element)
+                                } else {
+                                    pawn.steps = pawn.velocity
+                                }
+                                false*/
+                            }
                             is Bomb -> bar.isColliding(element.bar)
-                            is Bonus -> {if(bar.isColliding(element)) {
+                            is Bonus -> {
+                                if(bar.isColliding(element)) {
                                     cell.clear()
                                     pawn.applyBonus(element)
                                     element.taken = true
@@ -87,6 +97,18 @@ class Mechanics {
                     }
                     else false }
                 .reduce{first, second -> first || second}
+    }
+
+    private fun stepCounter(pawn: Pawn, tile: Tile): Int {
+        val bar = pawn.bar
+        val dir = pawn.direction
+        return when (dir) {
+            "UP" -> {tile.leftBottomCorner.y - bar.rightTopCorner.y - 1}
+            "DOWN" -> {bar.leftBottomCorner.y - tile.rightTopCorner.y - 1}
+            "LEFT" -> {bar.leftBottomCorner.x - tile.rightTopCorner.x - 1}
+            "RIGHT" -> {tile.leftBottomCorner.x - tile.rightTopCorner.x - 1}
+            else -> throw NotImplementedError()
+        }
     }
 
     private fun findNeighbour(coord: Coord, direction: String, strength: Int = 1): Coord {
@@ -107,22 +129,6 @@ class Mechanics {
                 if (coord.x + strength <= w - 1)
                     return Point(coord.x + strength, coord.y)
             }
-/*            "UP-RIGHT" -> {
-                if (coord.x + 1 <= w - 1 && coord.y + 1 <= h - 1)
-                    return Point(coord.x + 1, coord.y + 1)
-            }
-            "UP-LEFT" -> {
-                if (coord.x - 1 >= 0 && coord.y + 1 <= h - 1)
-                    return Point(coord.x - 1, coord.y + 1)
-            }
-            "DOWN-RIGHT" -> {
-                if (coord.x + 1 <= w - 1 && coord.y - 1 >= 0)
-                    return Point(coord.x + 1, coord.y - 1)
-            }
-            "DOWN-LEFT" -> {
-                if (coord.x - 1 >= 0 && coord.y - 1 >= 0)
-                    return Point(coord.x - 1, coord.y - 1)
-            }*/
             else -> return coord
         }
         return coord
@@ -148,15 +154,7 @@ class Mechanics {
         val coordOfBomb = pointToCoord(bomb.position)
         var directions = mutableSetOf("UP", "DOWN", "LEFT", "RIGHT", "")
         val neighbours = mutableListOf<Point>()
-/*        directions.forEach { dir ->
-            for (strength in 1..bomb2player[bomb]!!.bombStrength) {
-                val neighbour = findNeighbour(coordOfBomb, dir, strength)
-                if (!isWarm) {
-                    pawns.values.forEach { if (it.coords.contains(neighbour)) it.alive = false }
-                }
-                neighbours.add(neighbour)
-            }
-        }*/
+
         val excludedDirections = mutableSetOf<String>()
         for (strength in 1..bomb2player[bomb]!!.bombStrength) {
             directions = directions.subtract(excludedDirections).toMutableSet()
@@ -169,6 +167,9 @@ class Mechanics {
                         pawns.values.forEach { if (it.coords.contains(neighbour)) it.alive = false }
                     }
                     neighbours.add(neighbour)
+                    if (field[neighbour].isNotEmpty() && field[neighbour].last() is Wood) {
+                        excludedDirections.add(dir)
+                    }
                 }
             }
         }
@@ -187,7 +188,6 @@ class Mechanics {
                 field[it].clear()
             }
         }
-        //woods.forEach { field[it].clear() }
         bomb2player[bomb]!!.bombsCount++
         bomb2player.remove(bomb)
         field[coordOfBomb].clear()

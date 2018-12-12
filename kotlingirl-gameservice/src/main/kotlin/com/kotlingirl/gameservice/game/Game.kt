@@ -85,6 +85,7 @@ class Game(val count: Int) {
             }
         }
         //mechanics.pawns.values.forEach { replicas.add(it.dto) }
+        mechanics.bonuses.forEach { replicas.add(it) }
         broker.send(session, Topic.REPLICA, Data(replicas, false))
     }
 

@@ -60,7 +60,6 @@ class MessageManager(private val mechanics: Mechanics, private val broker: Broke
 
     private fun consumeGameOver(elapsed: Long) {
         val closableSessions = mutableListOf<WebSocketSession>()
-        //todo uncomment
         if (!mechanics.isWarm && mechanics.pawns.size == 1) {
             mechanics.pawns.forEach { session, _ ->
                 broker.send(session, Topic.GAME_OVER, "You Win!!!")
@@ -149,7 +148,9 @@ class MessageManager(private val mechanics: Mechanics, private val broker: Broke
             }
         }
         mechanics.pawns.values.forEach { replicas.add(it.dto) }
-        broker.send(session, Topic.REPLICA, Data(replicas, false))    }
+        mechanics.bonuses.forEach { replicas.add(it) }
+        broker.send(session, Topic.REPLICA, Data(replicas, false))
+    }
 
     fun mainInit() {
         val count = mechanics.pawns.size - 1

@@ -30,7 +30,6 @@ class GameServiceController {
             path = [GameServiceConstants.CREATE_PATH],
             consumes = [MediaType.APPLICATION_JSON_VALUE])
     fun create(@RequestBody parameters: UserRequestParameters): ResponseEntity<GameServiceResponse> {
-        // todo integrate with user parameters
         log.info("Haha, create data - $parameters")
         // log.info("Added request for $playerCount players")
         val game = gameRepository.createGame(3)
@@ -49,8 +48,7 @@ class GameServiceController {
 
     @PostMapping(
             path = [GameServiceConstants.APPEND_PLAYER_PATH],
-            consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE, MediaType.APPLICATION_JSON_UTF8_VALUE])
-    // todo
+            consumes = [MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_FORM_URLENCODED_VALUE])
     fun appendPlayer(@RequestParam("id") gameId: Int,
                      @RequestParam("userId") userId: Long): ResponseEntity<String> {
         val game = gameRepository.getGame(gameId)

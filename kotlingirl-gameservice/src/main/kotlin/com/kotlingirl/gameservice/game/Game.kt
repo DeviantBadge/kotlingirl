@@ -39,8 +39,6 @@ class Game(val count: Int) {
         log.info("HAHA, game number $id started, congratulations!")
         Thread {
             gameInit()
-            // todo clear
-            //messageManager.endWarm()
             ticker.gameLoop()
         }.start()
         log.info("New thread is started")
@@ -87,6 +85,7 @@ class Game(val count: Int) {
             }
         }
         //mechanics.pawns.values.forEach { replicas.add(it.dto) }
+        mechanics.bonuses.forEach { replicas.add(it) }
         broker.send(session, Topic.REPLICA, Data(replicas, false))
     }
 

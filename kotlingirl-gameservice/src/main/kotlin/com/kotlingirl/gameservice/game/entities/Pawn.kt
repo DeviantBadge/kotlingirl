@@ -31,22 +31,22 @@ class Pawn(val count: Int) : Tickable {
     var bombsCount = 1
     var bombStrength = 1
     var deadTime = 100
-
+    var steps = velocity
     override fun tick(elapsed: Long) {
         if (alive) {
             if (direction.isNotEmpty()) {
                 when (direction) {
                     "UP" -> {
-                        position.y += velocity
+                        position.y += steps
                     }
                     "DOWN" -> {
-                        position.y -= velocity
+                        position.y -= steps
                     }
                     "RIGHT" -> {
-                        position.x += velocity
+                        position.x += steps
                     }
                     "LEFT" -> {
-                        position.x -= velocity
+                        position.x -= steps
                     }
                 }
                 updatePosition()
@@ -65,6 +65,12 @@ class Pawn(val count: Int) : Tickable {
         changeBarPosition()
         dto.position = position
         changeCoords()
+    }
+
+    fun reset() {
+        velocity = 1
+        bombsCount = 1
+        bombStrength = 1
     }
 
     fun applyBonus(bonus: Bonus) {

@@ -50,8 +50,7 @@ LoginWindow.prototype.initialize = function (clusterSettings) {
 
     this.registerRequest = {
         url: clusterSettings.registerPath(),
-        method: "POST",
-        contentType: 'application/json',
+        method: "GET",
         crossDomain: true,
         async: true
     };

@@ -5,8 +5,12 @@ import com.kotlingirl.gameservice.game.Bar
 import com.kotlingirl.gameservice.game.Point
 import com.kotlingirl.gameservice.game.Tickable
 
-class Pawn(val id: Int, val count: Int) : Tickable {
-
+class Pawn(val count: Int) : Tickable {
+    var id: Int = 0
+        set(value) {
+            field = value
+            dto.id = value
+        }
     var position = Point(0, 0)
     val pawnSize = 32
     val halfpawnSize = pawnSize / 2

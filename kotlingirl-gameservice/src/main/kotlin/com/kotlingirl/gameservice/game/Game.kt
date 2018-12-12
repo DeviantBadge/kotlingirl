@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component
 
 import com.kotlingirl.gameservice.communication.Broker
 import com.kotlingirl.gameservice.communication.ConnectionPool
+import com.kotlingirl.gameservice.communication.Data
 import com.kotlingirl.gameservice.communication.Message
 import com.kotlingirl.gameservice.communication.Replica
 import com.kotlingirl.gameservice.communication.MessageManager
@@ -74,6 +75,21 @@ class Game(val count: Int) {
         messageManager = MessageManager(mechanics, broker)
         ticker.messageManager = messageManager
         messageManager.broadcastInitState()
+    }
+
+    fun warmInit(session: WebSocketSession) {
+        val replicas = mutableListOf<Any>()
+        mechanics.field.forEach { line ->
+            line.forEach { if (it.isNotEmpty() && it.last() is Tile)
+                replicas.add(it.last() as Tile)
+            }
+        }
+        //mechanics.pawns.values.forEach { replicas.add(it.dto) }
+        broker.send(session, Topic.REPLICA, Data(replicas, false))
+    }
+
+    fun mainInit() {
+        ticker.isWarm = false
     }
 
     fun curCountOfPlayers(): Int = connectionPool.getCountOfPlayers()

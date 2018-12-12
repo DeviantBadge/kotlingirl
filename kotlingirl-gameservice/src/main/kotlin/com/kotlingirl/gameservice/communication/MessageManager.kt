@@ -59,12 +59,12 @@ class MessageManager(private val mechanics: Mechanics, private val broker: Broke
 
     private fun consumeGameOver(elapsed: Long) {
         val closableSessions = mutableListOf<WebSocketSession>()
-        if (mechanics.pawns.size == 1) {
+/*        if (mechanics.pawns.size == 1) {
             mechanics.pawns.forEach { session, _ ->
                 broker.send(session, Topic.GAME_OVER, "You Win!!!")
                 closableSessions.add(session)
             }
-        }
+        }*/
 
         mechanics.pawns.forEach { session, pawn ->
             if (!pawn.alive) {
@@ -123,7 +123,7 @@ class MessageManager(private val mechanics: Mechanics, private val broker: Broke
     }
 
     fun broadcastInitState() {
-        mechanics.initPawns()
+        //mechanics.initPawns()
         val replicas = mutableListOf<Any>()
         mechanics.field.forEach { line ->
             line.forEach { if (it.isNotEmpty() && it.last() is Tile)
@@ -133,7 +133,38 @@ class MessageManager(private val mechanics: Mechanics, private val broker: Broke
         mechanics.pawns.values.forEach { replicas.add(it.dto) }
         broker.broadcast(Topic.REPLICA, Data(replicas, false))
     }
+    fun sendInitState(session: WebSocketSession) {
+        //mechanics.initPawns()
+        val replicas = mutableListOf<Any>()
+        mechanics.field.forEach { line ->
+            line.forEach { if (it.isNotEmpty() && it.last() is Tile)
+                replicas.add(it.last() as Tile)
+            }
+        }
+        mechanics.pawns.values.forEach { replicas.add(it.dto) }
+        broker.send(session, Topic.REPLICA, Data(replicas, false))    }
 
+    fun mainInit() {
+        val count = mechanics.pawns.size - 1
+        val sessions = mechanics.pawns.filter { e -> e.value.count != count }.keys
+        sessions.forEach { sendInitState(it) }
+        mechanics.init()
+        mechanics.initPawns()
+        broadcastInitState()
+/*        val replicas = mutableListOf<Any>()
+        mechanics.field.forEach { line ->
+            line.forEach { if (it.isNotEmpty() && it.last() is Tile)
+                replicas.add(it.last() as Tile)
+            }
+        }
+        mechanics.pawns.values.forEach { replicas.add(it.dto) }
+
+        broker.send(session, Topic.REPLICA, Data(replicas, false))*/
+    }
+
+    fun endWarm() {
+        mechanics.isWarm = false
+    }
 
     companion object {
         private val log = logger()

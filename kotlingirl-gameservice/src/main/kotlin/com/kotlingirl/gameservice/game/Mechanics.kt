@@ -16,6 +16,7 @@ operator fun Matrix.get(coord: Coord) = this[coord.x][coord.y]
 operator fun Matrix.set(coord: Coord, obj: Any) { this[coord.x][coord.y].add(obj) }
 class Mechanics {
 
+    var isWarm = true
     val h = 17
     val w = 27
     val tileSize = 32
@@ -24,25 +25,33 @@ class Mechanics {
     var bombs = mutableListOf<Bomb>()
     var bomb2player = mutableMapOf<Bomb, Pawn>()
     var fires = mutableListOf<Fire>()
+    var curCoord = Coord(1, h - 2)
 
     fun createPawn(session: WebSocketSession, user: User) {
         val count = pawns.size
-        pawns[session] = Pawn(idGen.getId(), count)
+        pawns[session] = Pawn(count).also { it.id = idGen.getId(); it.changePosition(coordToPoint(curCoord)) }
+        with(curCoord) {
+            when {
+                x == 1 -> x = w - 2
+                y == h - 2 -> y = 1
+                x == w - 2 -> x = 1
+                y == 1 -> y = h - 2
+            }
+        }
     }
 
     fun initPawns() {
-        val curCoord = Point(1, h - 2)
-        for (entry in pawns) {
-            entry.value.changePosition(coordToPoint(curCoord)).also { log.info("Begin state: ${entry.value.dto}") }
+        pawns.values.forEach {
             with(curCoord) {
-                field[x][y].add(entry.value)
-                when {
-                    x == 1 -> x = w - 2
-                    y == h - 2 -> y = 1
-                    x == w - 2 -> x = 1
-                    y == 1 -> y = h - 2
+                when (it.count) {
+                    0 -> { x = 1; y = h - 2 }
+                    1 -> { x = w - 2; y = h - 2 }
+                    2 -> { x = w - 2; y = 1}
+                    3 -> { x = 1; y = 1}
                 }
             }
+            it.changePosition(coordToPoint(curCoord))
+            it.id = idGen.getId()
         }
     }
 
@@ -126,7 +135,9 @@ class Mechanics {
         //pawns.values.forEach { if (it.coords.contains(coord)) it.alive = false }
         directions.forEach { dir ->
             val neighbour = findNeighbour(coord, dir)
-            pawns.values.forEach { if (it.coords.contains(neighbour)) it.alive = false }
+            if (!isWarm) {
+                pawns.values.forEach { if (it.coords.contains(neighbour)) it.alive = false }
+            }
                 neighbours.add(neighbour) }
         // ищем все ящики вокруг бомбы, но пока не удаляем их из матрицы
         val woods = neighbours.filter { field[it.x][it.y].isNotEmpty() }
@@ -136,6 +147,7 @@ class Mechanics {
         // после того, как мы сгенерировали выходной массив и огонь, можем удалить ящики из матрицы
         woods.forEach { field[it.x][it.y].clear() }
         bomb2player[bomb]!!.bombsCount++
+        bomb2player.remove(bomb)
         field[coord].clear()
         return returnWoods
     }
@@ -154,12 +166,12 @@ class Mechanics {
         for (i in 0 until field.size)
             for (j in 0 until field[i].size) {
                 if (i == 0 || j == 0 || i == field.size - 1 || j == field[i].size - 1 || ( i % 2 == 0 && j % 2 == 0))
-                    field[i][j].add(Wall(idGen.getId(), Point(i * tileSize, j * tileSize)))
+                    field[i][j] = mutableListOf(Wall(idGen.getId(), Point(i * tileSize, j * tileSize)))
                 else if ( !(i == 1 && j == 1 || i == 2 && j == 1 || i == 1 && j == 2 ||
                                 i == 1 && j == h - 2 || i == 2 && j == h - 2 || i == 1 && j == h - 3 ||
                                 i == w - 2 && j == h - 2 || i == w - 2 && j == h - 3 || i == w - 3 && j == h - 2 ||
                                 i == w - 2 && j == 1 || i == w - 2 && j == 2 || i == w - 3 && j == 1))
-                    field[i][j].add(Wood(idGen.getId(), Point(i * tileSize, j * tileSize)))
+                    field[i][j] = mutableListOf(Wood(idGen.getId(), Point(i * tileSize, j * tileSize)))
             }
     }
 
@@ -171,5 +183,12 @@ class Mechanics {
     init {
         initMatrix()
         makeLabyrinth()
+    }
+
+    fun init() {
+        makeLabyrinth()
+        bombs.clear()
+        bomb2player.clear()
+        fires.clear()
     }
 }

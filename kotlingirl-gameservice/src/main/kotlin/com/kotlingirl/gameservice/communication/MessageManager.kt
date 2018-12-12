@@ -60,7 +60,6 @@ class MessageManager(private val mechanics: Mechanics, private val broker: Broke
 
     private fun consumeGameOver(elapsed: Long) {
         val closableSessions = mutableListOf<WebSocketSession>()
-        //todo uncomment
         if (!mechanics.isWarm && mechanics.pawns.size == 1) {
             mechanics.pawns.forEach { session, _ ->
                 broker.send(session, Topic.GAME_OVER, "You Win!!!")

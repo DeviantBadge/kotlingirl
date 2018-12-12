@@ -37,8 +37,6 @@ class Game(val count: Int) {
         log.info("HAHA, game number $id started, congratulations!")
         Thread {
             gameInit()
-            // todo clear
-            //messageManager.endWarm()
             ticker.gameLoop()
         }.start()
         log.info("New thread is started")

@@ -1,7 +1,7 @@
 package com.kotlingirl.gameservice.communication
 
 import com.kotlingirl.gameservice.game.Mechanics
-import com.kotlingirl.gameservice.game.Tile
+import com.kotlingirl.gameservice.game.entities.Tile
 import com.kotlingirl.serverconfiguration.util.extensions.logger
 import org.springframework.web.socket.WebSocketSession
 import java.rmi.activation.UnknownObjectException
@@ -55,16 +55,18 @@ class MessageManager(private val mechanics: Mechanics, private val broker: Broke
         consumeBombs(elapsed)
         consumePawns()
         consumeFires(elapsed)
+        consumeBonuses()
     }
 
     private fun consumeGameOver(elapsed: Long) {
         val closableSessions = mutableListOf<WebSocketSession>()
-/*        if (mechanics.pawns.size == 1) {
+        //todo uncomment
+        if (!mechanics.isWarm && mechanics.pawns.size == 1) {
             mechanics.pawns.forEach { session, _ ->
                 broker.send(session, Topic.GAME_OVER, "You Win!!!")
                 closableSessions.add(session)
             }
-        }*/
+        }
 
         mechanics.pawns.forEach { session, pawn ->
             if (!pawn.alive) {
@@ -110,6 +112,11 @@ class MessageManager(private val mechanics: Mechanics, private val broker: Broke
     private fun consumeFires(elapsed: Long) {
         mechanics.fires.removeIf { it.leftTime == 0 }
         mechanics.fires.forEach { objects.add(it.dto); it.tick(elapsed) }
+    }
+
+    private fun consumeBonuses() {
+        mechanics.bonuses.forEach { if(it.taken) objects.add(it) }
+        mechanics.bonuses.removeIf { it.taken }
     }
 
     fun addMessage(session: WebSocketSession, msg: Message) {

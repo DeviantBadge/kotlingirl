@@ -27,8 +27,9 @@ class Pawn(val count: Int) : Tickable {
         }
     var coords = mutableSetOf<Point>()
     var bar = Bar(position, position)
-    val velocity = 2
+    var velocity = 1
     var bombsCount = 1
+    var bombStrength = 1
     var deadTime = 100
 
     override fun tick(elapsed: Long) {
@@ -64,6 +65,14 @@ class Pawn(val count: Int) : Tickable {
         changeBarPosition()
         dto.position = position
         changeCoords()
+    }
+
+    fun applyBonus(bonus: Bonus) {
+        when(bonus) {
+            is BonusBomb -> bombsCount++
+            is BonusSpeed -> velocity++
+            is BonusExplosion -> bombStrength++
+        }
     }
 
     private fun updatePosition() {

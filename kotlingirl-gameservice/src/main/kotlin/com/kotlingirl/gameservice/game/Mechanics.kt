@@ -2,11 +2,19 @@ package com.kotlingirl.gameservice.game
 
 import com.kotlingirl.gameservice.communication.User
 import com.kotlingirl.gameservice.game.entities.Bomb
+import com.kotlingirl.gameservice.game.entities.Bonus
+import com.kotlingirl.gameservice.game.entities.BonusBomb
+import com.kotlingirl.gameservice.game.entities.BonusExplosion
+import com.kotlingirl.gameservice.game.entities.BonusSpeed
 import com.kotlingirl.gameservice.game.entities.Fire
 import com.kotlingirl.gameservice.game.entities.Pawn
+import com.kotlingirl.gameservice.game.entities.Tile
+import com.kotlingirl.gameservice.game.entities.Wall
+import com.kotlingirl.gameservice.game.entities.Wood
 import com.kotlingirl.serverconfiguration.util.IntIdGen
 import com.kotlingirl.serverconfiguration.util.extensions.logger
 import org.springframework.web.socket.WebSocketSession
+import kotlin.random.Random
 
 typealias Line = Array < MutableList <Any> >
 typealias Matrix = ArrayList <Line>
@@ -25,6 +33,7 @@ class Mechanics {
     var bombs = mutableListOf<Bomb>()
     var bomb2player = mutableMapOf<Bomb, Pawn>()
     var fires = mutableListOf<Fire>()
+    var bonuses = mutableListOf<Bonus>()
     var curCoord = Coord(1, h - 2)
 
     fun createPawn(session: WebSocketSession, user: User) {
@@ -64,8 +73,15 @@ class Mechanics {
                     if (cell.isNotEmpty()) {
                         val element = cell.last()
                         when(element) {
-                             is Tile -> bar.isColliding(Bar(coordToPoint(it), Point(coordToPoint(it).x + 31, coordToPoint(it).y + 31)))
-                             is Bomb -> bar.isColliding(element.bar)
+                            is Tile -> bar.isColliding(Bar(coordToPoint(it), Point(coordToPoint(it).x + 31, coordToPoint(it).y + 31)))
+                            is Bomb -> bar.isColliding(element.bar)
+                            is Bonus -> {if(bar.isColliding(element)) {
+                                    cell.clear()
+                                    pawn.applyBonus(element)
+                                    element.taken = true
+                                }
+                                false
+                            }
                             else -> false
                         }
                     }
@@ -73,23 +89,23 @@ class Mechanics {
                 .reduce{first, second -> first || second}
     }
 
-    private fun findNeighbour(coord: Coord, direction: String): Coord {
+    private fun findNeighbour(coord: Coord, direction: String, strength: Int = 1): Coord {
         when(direction) {
             "UP" -> {
-                if (coord.y + 1 <= h - 1)
-                    return Point(coord.x, coord.y + 1)
+                if (coord.y + strength <= h - 1)
+                    return Point(coord.x, coord.y + strength)
             }
             "DOWN" -> {
-                if (coord.y - 1 >= 0)
-                    return Point(coord.x, coord.y - 1)
+                if (coord.y - strength >= 0)
+                    return Point(coord.x, coord.y - strength)
             }
             "LEFT" -> {
-                if (coord.x - 1 >= 0)
-                    return Point(coord.x - 1, coord.y)
+                if (coord.x - strength >= 0)
+                    return Point(coord.x - strength, coord.y)
             }
             "RIGHT" -> {
-                if (coord.x + 1 <= w - 1)
-                    return Point(coord.x + 1, coord.y)
+                if (coord.x + strength <= w - 1)
+                    return Point(coord.x + strength, coord.y)
             }
 /*            "UP-RIGHT" -> {
                 if (coord.x + 1 <= w - 1 && coord.y + 1 <= h - 1)
@@ -129,27 +145,71 @@ class Mechanics {
 
     fun explose(bomb: Bomb): List<Any> {
         bomb.explosed = true
-        val coord = pointToCoord(bomb.position)
-        val directions = listOf("UP", "DOWN", "LEFT", "RIGHT", "")
+        val coordOfBomb = pointToCoord(bomb.position)
+        var directions = mutableSetOf("UP", "DOWN", "LEFT", "RIGHT", "")
         val neighbours = mutableListOf<Point>()
-        //pawns.values.forEach { if (it.coords.contains(coord)) it.alive = false }
-        directions.forEach { dir ->
-            val neighbour = findNeighbour(coord, dir)
-            if (!isWarm) {
-                pawns.values.forEach { if (it.coords.contains(neighbour)) it.alive = false }
+/*        directions.forEach { dir ->
+            for (strength in 1..bomb2player[bomb]!!.bombStrength) {
+                val neighbour = findNeighbour(coordOfBomb, dir, strength)
+                if (!isWarm) {
+                    pawns.values.forEach { if (it.coords.contains(neighbour)) it.alive = false }
+                }
+                neighbours.add(neighbour)
             }
-                neighbours.add(neighbour) }
+        }*/
+        val excludedDirections = mutableSetOf<String>()
+        for (strength in 1..bomb2player[bomb]!!.bombStrength) {
+            directions = directions.subtract(excludedDirections).toMutableSet()
+            for (dir in directions) {
+                val neighbour = findNeighbour(coordOfBomb, dir, strength)
+                if (field[neighbour].isNotEmpty() && field[neighbour].last() is Wall) {
+                    excludedDirections.add(dir)
+                } else {
+                    if (!isWarm) {
+                        pawns.values.forEach { if (it.coords.contains(neighbour)) it.alive = false }
+                    }
+                    neighbours.add(neighbour)
+                }
+            }
+        }
+
         // ищем все ящики вокруг бомбы, но пока не удаляем их из матрицы
-        val woods = neighbours.filter { field[it.x][it.y].isNotEmpty() }
-                .filter { field[it.x][it.y].last() is Wood }
-        val returnWoods = woods.map{ field[it.x][it.y].last() as Wood }
-        neighbours.forEach { fires.add(Fire(idGen.getId(), coordToPoint(it))) }
+        val woods = neighbours.filter { field[it].isNotEmpty() }
+                .filter { field[it].last() is Wood }
+        val returnWoods = woods.map{ field[it].last() as Wood }.toMutableList<Any>()
+        neighbours.forEach { if(field[it].isEmpty() || field[it].last() !is Wall) fires.add(Fire(idGen.getId(), coordToPoint(it))) }
         // после того, как мы сгенерировали выходной массив и огонь, можем удалить ящики из матрицы
-        woods.forEach { field[it.x][it.y].clear() }
+        woods.forEach {
+            val bonus = isBonus(coordToPoint(it))
+            if (bonus != null) {
+                field[it].add(bonus); returnWoods.add(bonus); bonuses.add(bonus)
+            } else {
+                field[it].clear()
+            }
+        }
+        //woods.forEach { field[it].clear() }
         bomb2player[bomb]!!.bombsCount++
         bomb2player.remove(bomb)
-        field[coord].clear()
+        field[coordOfBomb].clear()
         return returnWoods
+    }
+
+    private fun isBonus(position: Point): Bonus? {
+        val rand = Random.nextInt(3)
+        return when(rand) {
+            0 -> makeBonus(position)
+            else -> null
+        }
+    }
+
+    private fun makeBonus(position: Point): Bonus {
+        val rand = Random.nextInt(3)
+        return when (rand) {
+            0 -> BonusExplosion(idGen.getId(), position)
+            1 -> BonusSpeed(idGen.getId(), position)
+            2 -> BonusBomb(idGen.getId(), position)
+            else -> throw NotImplementedError()
+        }
     }
 
     private fun coordToPoint(coord: Coord): Point  = Point(coord.x * tileSize, coord.y * tileSize)
@@ -190,5 +250,6 @@ class Mechanics {
         bombs.clear()
         bomb2player.clear()
         fires.clear()
+        bonuses.clear()
     }
 }

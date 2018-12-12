@@ -33,6 +33,9 @@ class SockEventHandler : TextWebSocketHandler() {
         synchronized(game) {
             sessions2games[session] = game
             game.linkUser(session, User(""))
+/*            if(game.curCountOfPlayers() == game.count) {
+                game.start()
+            }*/// todo uncomment
             if (game.curCountOfPlayers() == game.count) {
                 game.mainInit()
             } else {

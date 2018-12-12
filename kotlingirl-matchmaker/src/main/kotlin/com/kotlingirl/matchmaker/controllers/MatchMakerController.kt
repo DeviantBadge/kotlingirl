@@ -31,15 +31,23 @@ class MatchMakerController {
     @Autowired
     lateinit var gameRepository: GameRepository
 
+    @Autowired
+    lateinit var serviceCommunicator: ServiceCommunicator
+
+    // here can be an exception, its on first time
+    // todo create loop for several attempts (stops when retry amount is very high or time was more than default)
     @PostMapping(
             path = [MatchMakerConstants.CASUAL_PATH],
             consumes = [MediaType.APPLICATION_JSON_VALUE])
     fun casual(@RequestBody request: UserRequest): ResponseEntity<MatchMakerGameResponse> {
-        checkUser(request.credentials)
+        checkUser(request.userId)
         val game = gameRepository.getCasualGame(request.parameters)
-        // here can be an exception, its on first time
-        // todo create loop for several attempts (stops when retry amount is very high or time was more than default)
-        gameRepository.appendPlayerToGame(game, request.credentials!!)
+        try {
+            gameRepository.appendPlayerToGame(game, request.userId!!)
+        } catch (e: Exception) {
+            gameRepository.putBackIfNotReady(game)
+            throw e
+        }
         gameRepository.putBackIfNotReady(game)
         return ResponseEntity.ok().body(MatchMakerGameResponse(game.serviceInstance.instanceId, game.id))
     }
@@ -57,12 +65,10 @@ class MatchMakerController {
         return ResponseEntity.ok().build()
     }
 
-    fun checkUser(credentials: UserCredentials?): Unit = when {
-        credentials == null -> throw InternalException(HttpStatus.BAD_REQUEST, "Request without credentials")
-        credentials.name == null -> throw InternalException(HttpStatus.BAD_REQUEST, "Request without name")
-        credentials.name!!.length < 3 -> throw InternalException(HttpStatus.BAD_REQUEST, "Too short name")
-        credentials.name!!.length > 20 -> throw InternalException(HttpStatus.BAD_REQUEST, "Too Long Name")
+    fun checkUser(userId: Long?): Unit = when {
+        userId == null -> throw InternalException(HttpStatus.BAD_REQUEST, "Request without credentials")
         else -> {
+            serviceCommunicator.checkPlayerId(userId)
         }
     }
 }

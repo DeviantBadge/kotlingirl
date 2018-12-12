@@ -4,5 +4,6 @@ import com.alibaba.fastjson.annotation.JSONField
 
 
 data class UserRequest (
-        @JSONField val credentials: UserCredentials? = null,
-        @JSONField val parameters: UserRequestParameters? = null)
+        @JSONField val userId: Long? = null,
+        @JSONField val parameters: UserRequestParameters? = null
+)

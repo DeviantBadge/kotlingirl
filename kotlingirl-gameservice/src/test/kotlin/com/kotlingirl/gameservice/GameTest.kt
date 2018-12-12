@@ -2,6 +2,7 @@ package com.kotlingirl.gameservice
 
 import com.kotlingirl.gameservice.communication.Broker
 import com.kotlingirl.gameservice.communication.ConnectionPool
+import com.kotlingirl.gameservice.communication.Data
 import com.kotlingirl.gameservice.communication.Message
 import com.kotlingirl.gameservice.communication.MessageManager
 import com.kotlingirl.gameservice.communication.MoveData
@@ -39,7 +40,7 @@ class GameTest {
         val connectionPool = ConnectionPool()
         val broker = Broker(connectionPool)
         val messageManager = MessageManager(mechanics, broker)
-        mechanics.createPawn(session, User(0, ""))
+        mechanics.createPawn(session, User(0))
         mechanics.initPawns()
         val message: Message = Message(Topic.MOVE, MoveData(direction = "UP"))
         messageManager.addMessage(session, message)
@@ -49,13 +50,13 @@ class GameTest {
 
         assertNotNull("Replica is not null?", replica)
         if (replica != null) {
-            assertTrue("The size of replica obj == 1?", replica.data.objects.size == 1)
+            assertTrue("The size of replica obj == 1?", (replica.data as Data).objects.size == 1)
         }
     }
 
     @Test
     fun `change coords`() {
-        val pawn = Pawn(0)
+        val pawn = Pawn(0, 0)
         pawn.changePosition(Point(32, 32))
         assertEquals(setOf(Point(1, 1)),pawn.coords)
 

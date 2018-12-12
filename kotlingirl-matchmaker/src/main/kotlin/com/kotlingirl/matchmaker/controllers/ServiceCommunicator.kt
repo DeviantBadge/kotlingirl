@@ -8,8 +8,8 @@ import com.kotlingirl.serverconfiguration.elements.InstanceInfoWrapper
 import com.kotlingirl.serverconfiguration.elements.InternalException
 import com.kotlingirl.serverconfiguration.elements.matchmaker.MatchMakerGameUnit
 import com.kotlingirl.serverconfiguration.elements.messages.GameServiceResponse
-import com.kotlingirl.serverconfiguration.elements.messages.UserCredentials
 import com.kotlingirl.serverconfiguration.elements.messages.UserRequestParameters
+import com.kotlingirl.serverconfiguration.util.extensions.createHttpEntity
 import com.kotlingirl.serverconfiguration.util.extensions.fromJsonString
 import com.kotlingirl.serverconfiguration.util.extensions.logger
 import com.kotlingirl.serverconfiguration.util.extensions.toJsonHttpEntity
@@ -20,6 +20,7 @@ import org.springframework.cloud.client.ServiceInstance
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
@@ -34,6 +35,10 @@ class ServiceCommunicator {
     @Autowired
     @Qualifier("no_exc")
     lateinit var restTemplate: RestTemplate
+
+    @Autowired
+    @Qualifier("balance")
+    lateinit var balanceTemplate: RestTemplate
 
     @Autowired
     lateinit var loadBalancer: LoadBalancerClient
@@ -68,13 +73,13 @@ class ServiceCommunicator {
                         ?: throw InternalException(HttpStatus.INTERNAL_SERVER_ERROR, "Response with empty body"))
     }
 
-    fun appendPlayerToGame(game: MatchMakerGameUnit, credentials: UserCredentials) {
+    fun appendPlayerToGame(game: MatchMakerGameUnit, userId: Long) {
         val response: ResponseEntity<String>
         try {
             response = restTemplate.postForEntity(
                     "${game.serviceInstance.uri}$GAME_PATH$APPEND_PLAYER_PATH" +
-                            "?id=${game.id}",
-                    credentials.toJsonHttpEntity(),
+                            "?id=${game.id}&userId=$userId",
+                    "".toJsonHttpEntity(),
                     String::class.java)
 
             log.info("Got response from $GAME_SERVICE_NAME with " +
@@ -86,6 +91,25 @@ class ServiceCommunicator {
         }
         if (!response.statusCode.is2xxSuccessful)
             throw InternalException(response.statusCode, "Request to $GAME_SERVICE_NAME " +
+                    "Ended with status ${response.statusCode} and message: ${response.body ?: "response was empty"}")
+    }
+
+    fun checkPlayerId(userId: Long) {
+        val response: ResponseEntity<String>
+        try {
+            response = balanceTemplate.getForEntity(
+                    "http://kotlingirl-registry/users/getUser/$userId",
+                    String::class.java)
+
+            log.info("Got response from registry with " +
+                    "body ${response.body ?: "Empty body"} and " +
+                    "response code ${response.statusCode}")
+        } catch (e: IllegalStateException) {
+            log.info("${e::class.java.simpleName} and message ${e.message}")
+            throw InternalException(HttpStatus.INTERNAL_SERVER_ERROR, "Cant choose service to use")
+        }
+        if (!response.statusCode.is2xxSuccessful)
+            throw InternalException(response.statusCode, "Request to registry " +
                     "Ended with status ${response.statusCode} and message: ${response.body ?: "response was empty"}")
     }
 

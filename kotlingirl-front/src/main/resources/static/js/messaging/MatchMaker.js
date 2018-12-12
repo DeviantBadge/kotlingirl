@@ -24,7 +24,7 @@ MatchMaker.prototype.getGame = function (parameters) {
             return;
     }
     GM.credentials.name = Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
-    parameters.credentials = GM.credentials;
+    parameters.userId = GM.userId;
     var settings = this.getSettings(parameters);
     settings.data = JSON.stringify(parameters);
 

@@ -22,4 +22,12 @@ class RestTemplateDeclaration {
                 .errorHandler(errorHandler)
                 .build()
     }
+
+    @Bean(name = ["balance"])
+    @LoadBalanced
+    fun restBalanceLoaded(): RestTemplate {
+        return restTemplateBuilder
+                .errorHandler(errorHandler)
+                .build()
+    }
 }

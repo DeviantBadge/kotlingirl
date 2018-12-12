@@ -9,11 +9,10 @@ data class Data(val objects: List<Any>, val gameOver: Boolean)
 open class Message(open val topic: Topic, open val data: Any)
 data class MoveMessage(override val topic: Topic, override val data: MoveData): Message(topic, Any())
 data class MoveData(val direction: String)
-data class User(val name: String) {
+data class User(val userId: Long) {
     companion object {
         private val idGen = IntIdGen()
     }
-    val id = idGen.getId()
     var linked = false
     lateinit var webSocketSession: WebSocketSession
 }

@@ -18,6 +18,7 @@ var GameMaster = function () {
         password : ""
     };
     this.gameId = "";
+    this.userId = -1;
     this.server = "";
 };
 

@@ -40,8 +40,12 @@ class UserServiceImpl: UserService {
 
     override fun updateUser(player: Player) = playerRepository.save(player)
 
-    override fun updateUserRating(ratingDelta: Int, playerId: Long): Player {
+    override fun getUser(playerId: Long): Player {
+        return playerRepository.findById(playerId).orElse(null)
+                ?: throw InternalException(HttpStatus.BAD_REQUEST, "Player with this id isnt create")
+    }
 
+    override fun updateUserRating(ratingDelta: Int, playerId: Long): Player {
         var player: Player = playerRepository.findById(playerId).orElse(null)
                 ?: throw InternalException(HttpStatus.BAD_REQUEST, "Player with this id isnt create")
         player.rating += ratingDelta

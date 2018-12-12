@@ -35,6 +35,7 @@ ServerProxy.prototype.connectToGameServer = function(mmResponse) {
     this.socket = new SockJS("/events/connect"
         + "?server=" + GM.server
         + "&gameId=" + GM.gameId
+        + "&userId=" + GM.userId
     );
     var self = this;
     var prepared = false;

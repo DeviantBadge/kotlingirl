@@ -52,6 +52,12 @@ class PlayerController {
         return userService.updateUserRating(deltaRating, id)
     }
 
+    @GetMapping(
+            path = ["/getUser/{id}"])
+    fun changeRating(@PathVariable id : Long): Player {
+        return userService.getUser(id)
+    }
+
     @PostMapping(
             path = ["/setRating/{id}"])
     fun setRating(@RequestParam deltaRating: Int, @PathVariable id : Long): Player {

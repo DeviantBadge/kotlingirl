@@ -17,14 +17,14 @@ var ClusterSetting = function () {
         protocol: 'http',
         host: 'localhost',
         port: '8762',
-        path: '/users/signIn'
+        path: '/users/login'
     };
 
     this.register = {
         protocol: 'http',
         host: 'localhost',
         port: '8762',
-        path: '/users/register'
+        path: '/users/registration'
     };
 };
 // todo make gui

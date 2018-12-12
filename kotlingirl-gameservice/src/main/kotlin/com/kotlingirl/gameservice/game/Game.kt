@@ -31,7 +31,7 @@ class Game(val count: Int) {
     private val connectionPool = ConnectionPool()
     val id = idGen.getId()
     var mechanics = Mechanics()
-    var users = mutableSetOf<User>()
+    var users = mutableListOf<User>()
     lateinit var broker: Broker
     lateinit var messageManager: MessageManager
 

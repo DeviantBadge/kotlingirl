@@ -1,12 +1,13 @@
 package com.kotlingirl.gameservice.communication
 
 import com.kotlingirl.gameservice.game.Mechanics
-import com.kotlingirl.gameservice.game.entities.Tile
 import com.kotlingirl.serverconfiguration.util.extensions.logger
 import org.springframework.web.socket.WebSocketSession
 import java.rmi.activation.UnknownObjectException
 import java.util.concurrent.ConcurrentLinkedQueue
 
+
+/** Receives messages and makes replica to send it */
 class MessageManager(private val mechanics: Mechanics, private val broker: Broker) {
 
     var inputQueue = ConcurrentLinkedQueue<Pair<WebSocketSession, Message> >()
@@ -129,50 +130,34 @@ class MessageManager(private val mechanics: Mechanics, private val broker: Broke
         }
     }
 
-    fun broadcastInitState() {
-        //mechanics.initPawns()
+    /** when first player connected */
+    fun broadcastCurrentState() {
+        broker.broadcast(Topic.REPLICA, Data(constructLabyrinthReplica(), false))
+    }
+
+    /** send current warm up labyrinth */
+    fun sendCurrentState(session: WebSocketSession) {
+        broker.send(session, Topic.REPLICA, Data(constructLabyrinthReplica(), false))
+    }
+
+    private fun constructLabyrinthReplica(): List<Any> {
         val replicas = mutableListOf<Any>()
-        mechanics.field.forEach { line ->
-            line.forEach { if (it.isNotEmpty() && it.last() is Tile)
-                    replicas.add(it.last() as Tile)
-            }
-        }
-        mechanics.pawns.values.forEach { replicas.add(it.dto) }
-        broker.broadcast(Topic.REPLICA, Data(replicas, false))
-    }
-    fun sendInitState(session: WebSocketSession) {
-        //mechanics.initPawns()
-        val replicas = mutableListOf<Any>()
-        mechanics.field.forEach { line ->
-            line.forEach { if (it.isNotEmpty() && it.last() is Tile)
-                replicas.add(it.last() as Tile)
-            }
-        }
-        mechanics.pawns.values.forEach { replicas.add(it.dto) }
-        mechanics.bonuses.forEach { replicas.add(it) }
-        broker.send(session, Topic.REPLICA, Data(replicas, false))
+        replicas.addAll(mechanics.tiles)
+        replicas.addAll(mechanics.bonuses)
+        return replicas.toList()
     }
 
-    fun mainInit() {
-        val count = mechanics.pawns.size - 1
-        val sessions = mechanics.pawns.filter { e -> e.value.count != count }.keys
-        sessions.forEach { sendInitState(it) }
-        mechanics.init()
-        mechanics.initPawns()
-        broadcastInitState()
-/*        val replicas = mutableListOf<Any>()
-        mechanics.field.forEach { line ->
-            line.forEach { if (it.isNotEmpty() && it.last() is Tile)
-                replicas.add(it.last() as Tile)
-            }
-        }
-        mechanics.pawns.values.forEach { replicas.add(it.dto) }
-
-        broker.send(session, Topic.REPLICA, Data(replicas, false))*/
-    }
-
-    fun endWarm() {
+    /** all this performs when needReInit is set true */
+    fun initMainGame() {
         mechanics.isWarm = false
+        val count = mechanics.pawns.size - 1
+        /** extract all players except of last added */
+        val sessions = mechanics.pawns.filter { e -> e.value.count != count }.keys
+        sessions.forEach { sendCurrentState(it) }
+        mechanics.init()
+        /** after deleting last state and initing everything,
+         *  we need to broadcast init state one else time */
+        broadcastCurrentState()
     }
 
     companion object {

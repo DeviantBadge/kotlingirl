@@ -29,7 +29,7 @@ class SockEventHandler : TextWebSocketHandler() {
         val uriParams = session.uri?.query?.queryToMap() ?: mapOf()
         logger().info("Logged user got such params - $uriParams")
         val gameId = uriParams["gameId"]?.toInt() ?: 0
-        val game = gameRepository.getGame(gameId) ?: Game(0)
+        val game = gameRepository.getGame(gameId)!!
         synchronized(game) {
             sessions2games[session] = game
             game.linkUser(session, User(""))

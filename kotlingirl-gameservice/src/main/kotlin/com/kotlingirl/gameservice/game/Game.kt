@@ -7,13 +7,11 @@ import org.springframework.stereotype.Component
 
 import com.kotlingirl.gameservice.communication.Broker
 import com.kotlingirl.gameservice.communication.ConnectionPool
-import com.kotlingirl.gameservice.communication.Data
 import com.kotlingirl.gameservice.communication.Message
 import com.kotlingirl.gameservice.communication.MessageManager
 import com.kotlingirl.gameservice.communication.MoveMessage
 import com.kotlingirl.gameservice.communication.Topic
 import com.kotlingirl.gameservice.communication.User
-import com.kotlingirl.gameservice.game.entities.Tile
 import com.kotlingirl.serverconfiguration.util.extensions.fromJsonString
 import org.springframework.web.socket.WebSocketSession
 
@@ -21,24 +19,18 @@ import org.springframework.web.socket.WebSocketSession
 @Component
 class Game(val count: Int) {
 
-    companion object {
-        private val log = logger()
-        private val idGen = IntIdGen()
-    }
-    private val ticker = Ticker()
     private val connectionPool = ConnectionPool()
+    private val mechanics = Mechanics()
+    private val broker = Broker(connectionPool)
+    private val messageManager = MessageManager(mechanics, broker)
+    private val ticker = Ticker(messageManager)
     val id = idGen.getId()
-    var mechanics = Mechanics()
-    var users = mutableSetOf<User>()
-    lateinit var broker: Broker
-    lateinit var messageManager: MessageManager
+    val users = mutableSetOf<User>()
 
     fun start() {
         log.info("HAHA, game number $id started, congratulations!")
         Thread {
             gameInit()
-            // todo clear
-            //messageManager.endWarm()
             ticker.gameLoop()
         }.start()
         log.info("New thread is started")
@@ -59,7 +51,7 @@ class Game(val count: Int) {
         mechanics.createPawn(session, user)
     }
 
-    fun receive(session: WebSocketSession, msg: String){
+    fun receive(session: WebSocketSession, msg: String) {
 //        log.info("RECEIVED: $msg")
         val message: Message = msg.fromJsonString()
         if(message.topic == Topic.MOVE) {
@@ -70,28 +62,25 @@ class Game(val count: Int) {
         }
     }
 
+    /** when first player connected */
     private fun gameInit() {
-        broker = Broker(connectionPool)
-        messageManager = MessageManager(mechanics, broker)
-        ticker.messageManager = messageManager
-        messageManager.broadcastInitState()
+        messageManager.broadcastCurrentState()
     }
 
+    /** when middle players connected */
     fun warmInit(session: WebSocketSession) {
-        val replicas = mutableListOf<Any>()
-        mechanics.field.forEach { line ->
-            line.forEach { if (it.isNotEmpty() && it.last() is Tile)
-                replicas.add(it.last() as Tile)
-            }
-        }
-        //mechanics.pawns.values.forEach { replicas.add(it.dto) }
-        mechanics.bonuses.forEach { replicas.add(it) }
-        broker.send(session, Topic.REPLICA, Data(replicas, false))
+        messageManager.sendCurrentState(session)
     }
 
+    /** when last player connected */
     fun mainInit() {
-        ticker.isWarm = false
+        ticker.needReInit = true
     }
 
     fun curCountOfPlayers(): Int = connectionPool.getCountOfPlayers()
+
+    companion object {
+        private val log = logger()
+        private val idGen = IntIdGen()
+    }
 }

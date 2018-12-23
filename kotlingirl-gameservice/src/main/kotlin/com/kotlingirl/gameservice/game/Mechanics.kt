@@ -18,10 +18,14 @@ import kotlin.random.Random
 
 typealias Line = Array < MutableList <Any> >
 typealias Matrix = ArrayList <Line>
+
+// coordinate like Point has 2 components,
+// but its values are indexes in Matrix
 typealias Coord = Point
 
 operator fun Matrix.get(coord: Coord) = this[coord.x][coord.y]
 operator fun Matrix.set(coord: Coord, obj: Any) { this[coord.x][coord.y].add(obj) }
+
 class Mechanics {
 
     var isWarm = true
@@ -29,11 +33,17 @@ class Mechanics {
     val w = 27
     val tileSize = 32
     val field = Matrix()
-    var pawns = HashMap<WebSocketSession, Pawn>()
-    var bombs = mutableListOf<Bomb>()
-    var bomb2player = mutableMapOf<Bomb, Pawn>()
-    var fires = mutableListOf<Fire>()
-    var bonuses = mutableListOf<Bonus>()
+    val tiles : Set<Tile>
+        get() {
+            val set = mutableSetOf<Tile>()
+            forTiles { set.add(it) }
+        return set
+    }
+    val pawns = HashMap<WebSocketSession, Pawn>()
+    val bombs = mutableListOf<Bomb>()
+    val bomb2player = mutableMapOf<Bomb, Pawn>()
+    val fires = mutableListOf<Fire>()
+    val bonuses = mutableListOf<Bonus>()
     var curCoord = Coord(1, h - 2)
 
     fun createPawn(session: WebSocketSession, user: User) {
@@ -60,6 +70,7 @@ class Mechanics {
                 }
             }
             it.changePosition(coordToPoint(curCoord))
+            // it's necessary to change ID after Warm Up, because pawn's layer must be higher than tile's layer
             it.id = idGen.getId()
             it.reset()
         }
@@ -247,9 +258,19 @@ class Mechanics {
 
     fun init() {
         makeLabyrinth()
+        initPawns()
         bombs.clear()
         bomb2player.clear()
         fires.clear()
         bonuses.clear()
     }
+
+    private fun forTiles(action: (tile: Tile) -> Unit) {
+        field.forEach { line ->
+            line.forEach { if (it.isNotEmpty() && it.last() is Tile)
+                action(it.last() as Tile)
+            }
+        }
+    }
+
 }

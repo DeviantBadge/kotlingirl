@@ -1,123 +1,26 @@
 package com.kotlingirl.gameservice.communication
 
+import com.kotlingirl.gameservice.game.ObjectsConsumer
 import com.kotlingirl.gameservice.game.Mechanics
 import com.kotlingirl.serverconfiguration.util.extensions.logger
 import org.springframework.web.socket.WebSocketSession
-import java.rmi.activation.UnknownObjectException
 import java.util.concurrent.ConcurrentLinkedQueue
 
 
 /** Receives messages and makes replica to send it */
 class MessageManager(private val mechanics: Mechanics, private val broker: Broker) {
 
-    var inputQueue = ConcurrentLinkedQueue<Pair<WebSocketSession, Message> >()
-    val objects = mutableListOf<Any>()
+    private val inputQueue = ConcurrentLinkedQueue<Pair<WebSocketSession, Message> >()
+    private val objectsConsumer = ObjectsConsumer(mechanics)
+    private val queueReader = QueueReader(mechanics)
 
     fun makeReplica(elapsed: Long): Replica? {
-        objects.clear()
-        if (inputQueue.isNotEmpty()) {
-            val batchSize = inputQueue.size
-            log.info("Size of copied queue size = ${batchSize}")
-            for (i in 0 until batchSize) {
-                val pair = inputQueue.poll()
-                when (pair.second.topic) {
-                    Topic.MOVE -> {
-                        val moveData: MoveData = pair.second.data as MoveData
-                        val pawn = mechanics.pawns[pair.first]
-                        if (pawn != null && !(objects.contains(pawn.dto))) {
-                            pawn.direction = moveData.direction
-                            if (!mechanics.checkColliding(pawn)) {
-                                pawn.tick(elapsed)
-                            }
-                            objects.add(pawn.dto)
-                        }
-                    }
-
-                    Topic.PLANT_BOMB, Topic.JUMP -> {
-                        val bomb = mechanics.plantBomb(pair.first)
-                        if (bomb != null) {
-                            objects.add(0, bomb.dto)
-                        }
-                    }
-
-                    else -> throw UnknownObjectException("Not such Topic type")
-                }
-            }
-        }
-        consumeObjects(elapsed)
-        return if (objects.isNotEmpty()) {
-//            log.info("last state of pawn ${objects}")
-            return Replica(Topic.REPLICA, Data(objects, false))
-        } else null
-    }
-
-    private fun consumeObjects(elapsed: Long) {
-        consumeGameOver(elapsed)
-        consumeBombs(elapsed)
-        consumePawns()
-        consumeFires(elapsed)
-        consumeBonuses()
-    }
-
-    private fun consumeGameOver(elapsed: Long) {
-        val closableSessions = mutableListOf<WebSocketSession>()
-        //todo uncomment
-        if (!mechanics.isWarm && mechanics.pawns.size == 1) {
-            mechanics.pawns.forEach { session, _ ->
-                broker.send(session, Topic.GAME_OVER, "You Win!!!")
-                closableSessions.add(session)
-            }
-        }
-
-        mechanics.pawns.forEach { session, pawn ->
-            if (!pawn.alive) {
-                if(pawn.deadTime <= 0) {
-                    broker.send(session, Topic.GAME_OVER, "Game Over")
-                    closableSessions.add(session)
-                } else {
-                    pawn.tick(elapsed)
-                }
-            }
-        }
-        closableSessions.forEach { mechanics.pawns.remove(it) }
-        closableSessions.forEach { it.close() }
-    }
-
-    private fun consumeBombs(elapsed: Long) {
-        mechanics.bombs.forEach {
-            if (it.timeLeft == 0) objects.addAll(mechanics.explose(it))
-            else {
-                objects.add(it.dto)
-                it.tick(elapsed)
-            }
-        }
-        mechanics.bombs.removeIf { it.explosed }
-    }
-
-    private fun consumePawns() {
-        val objPawns = objects.filter { it is PawnDto }.map { it as PawnDto }
-        mechanics.pawns.values.forEach {
-            if (!it.alive) {
-                if (objPawns.contains(it.dto)) {
-                    objects.remove(it.dto); objects.add(it.dto)
-                }
-            }
-        }
-        mechanics.pawns.values.forEach {
-            if (!objPawns.contains(it.dto)) {
-                it.direction = ""; objects.add(it.dto)
-            }
-        }
-    }
-
-    private fun consumeFires(elapsed: Long) {
-        mechanics.fires.removeIf { it.leftTime == 0 }
-        mechanics.fires.forEach { objects.add(it.dto); it.tick(elapsed) }
-    }
-
-    private fun consumeBonuses() {
-        mechanics.bonuses.forEach { if(it.taken) objects.add(it) }
-        mechanics.bonuses.removeIf { it.taken }
+        val objects = queueReader.read(inputQueue, elapsed)
+        checkGameOver(elapsed)
+        objectsConsumer.consume(objects, elapsed)
+        return if (objects.isNotEmpty())
+            Replica(Topic.REPLICA, Data(objects, false))
+        else null
     }
 
     fun addMessage(session: WebSocketSession, msg: Message) {
@@ -140,24 +43,58 @@ class MessageManager(private val mechanics: Mechanics, private val broker: Broke
         broker.send(session, Topic.REPLICA, Data(constructLabyrinthReplica(), false))
     }
 
+    /** all this performs when ticker.needReInit is set true */
+    fun initMainGame() {
+        mechanics.isWarm = false
+        sendCurrentStateToAllWarmUpPlayers()
+        mechanics.init()
+        /** after deleting last state and initing everything,
+         *  we need to broadcast init state one else time */
+        broadcastCurrentState()
+    }
+
+    private fun checkGameOver(elapsed: Long) {
+        val closableSessions = mutableListOf<WebSocketSession>()
+        //todo comment for warmUp
+        checkWon(closableSessions)
+        checkLost(closableSessions, elapsed)
+        closableSessions.forEach { mechanics.pawns.remove(it); it.close()}
+    }
+
+    private fun checkWon(closableSessions: MutableList<WebSocketSession>) {
+        if (!mechanics.isWarm && mechanics.pawns.size == 1) {
+            mechanics.pawns.forEach { session, _ ->
+                broker.send(session, Topic.GAME_OVER, "You Win!!!")
+                closableSessions.add(session)
+            }
+        }
+    }
+
+    private fun checkLost(closableSessions: MutableList<WebSocketSession>, elapsed: Long) {
+        mechanics.pawns.forEach { session, pawn ->
+            if (!pawn.alive) {
+                if (pawn.deadTime <= 0) {
+                    broker.send(session, Topic.GAME_OVER, "Game Over")
+                    closableSessions.add(session)
+                } else {
+                    pawn.tick(elapsed)
+                }
+            }
+        }
+    }
+
+    private fun sendCurrentStateToAllWarmUpPlayers() {
+        val count = mechanics.pawns.size - 1
+        /** extract all players except of last added */
+        val sessions = mechanics.pawns.filter { e -> e.value.count != count }.keys
+        sessions.forEach { sendCurrentState(it) }
+    }
+
     private fun constructLabyrinthReplica(): List<Any> {
         val replicas = mutableListOf<Any>()
         replicas.addAll(mechanics.tiles)
         replicas.addAll(mechanics.bonuses)
         return replicas.toList()
-    }
-
-    /** all this performs when needReInit is set true */
-    fun initMainGame() {
-        mechanics.isWarm = false
-        val count = mechanics.pawns.size - 1
-        /** extract all players except of last added */
-        val sessions = mechanics.pawns.filter { e -> e.value.count != count }.keys
-        sessions.forEach { sendCurrentState(it) }
-        mechanics.init()
-        /** after deleting last state and initing everything,
-         *  we need to broadcast init state one else time */
-        broadcastCurrentState()
     }
 
     companion object {

@@ -7,10 +7,10 @@ import com.kotlingirl.serverconfiguration.util.extensions.logger
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.LockSupport
 
-class Ticker(val messageManager: MessageManager) {
+class Ticker(private val messageManager: MessageManager) {
     @Volatile
     var needReInit = false
-    var tickNumber: Long = 0
+    private var tickNumber: Long = 0
     fun gameLoop() {
         while (!Thread.currentThread().isInterrupted) {
             if (needReInit) {

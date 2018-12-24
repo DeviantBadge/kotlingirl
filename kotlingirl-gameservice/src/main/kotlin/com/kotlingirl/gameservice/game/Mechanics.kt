@@ -19,8 +19,8 @@ import kotlin.random.Random
 typealias Line = Array < MutableList <Any> >
 typealias Matrix = ArrayList <Line>
 
-// coordinate like Point has 2 components,
-// but its values are indexes in Matrix
+/** coordinate like Point has 2 components,
+ * but its values are indexes in Matrix */
 typealias Coord = Point
 
 operator fun Matrix.get(coord: Coord) = this[coord.x][coord.y]

@@ -13,10 +13,12 @@ import com.kotlingirl.gameservice.communication.MoveMessage
 import com.kotlingirl.gameservice.communication.Topic
 import com.kotlingirl.gameservice.communication.User
 import com.kotlingirl.serverconfiguration.util.extensions.fromJsonString
+import org.springframework.context.annotation.Scope
 import org.springframework.web.socket.WebSocketSession
 
 
 @Component
+@Scope("prototype")
 class Game(val count: Int) {
 
     private val connectionPool = ConnectionPool()

@@ -1,6 +1,7 @@
 package ru.atom.game.objects.base.util;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonValue;
 import ru.atom.game.objects.base.interfaces.Colliding;
 
 public class ColliderFrame extends Frame implements Colliding {

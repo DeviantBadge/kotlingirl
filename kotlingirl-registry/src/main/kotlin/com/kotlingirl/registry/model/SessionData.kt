@@ -1,5 +1,6 @@
 package com.kotlingirl.registry.model
 
+import java.util.ArrayList
 import javax.persistence.*
 
 
@@ -12,5 +13,8 @@ data class SessionData(
 
         @Column(name = "games_played")
         var game_type: GameType = GameType.CASUAL
+
+/*        @OneToMany(mappedBy = "player")
+        var players : List<Player>*/
 ){
 }

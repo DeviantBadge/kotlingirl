@@ -36,7 +36,6 @@ tasks.withType<KotlinCompile> {
 dependencies {
     implementation("com.alibaba", "fastjson", "1.2.54")
     implementation("postgresql", "postgresql", "9.3-1102.jdbc41")
-    implementation("io.github.rybalkinsd", "kohttp", "0.3.1")
     implementation("org.slf4j", "slf4j-api", "1.7.25")
 
     implementation(kotlin("stdlib-jdk8"))

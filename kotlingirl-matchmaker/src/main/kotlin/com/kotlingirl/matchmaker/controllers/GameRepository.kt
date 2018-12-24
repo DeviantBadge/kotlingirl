@@ -21,7 +21,7 @@ class GameRepository {
             games.poll() ?: serviceCommunicator.createCasualGame(parameters)
 
 
-    fun appendPlayerToGame(game: MatchMakerGameUnit, credentials: UserCredentials): Unit =
+    fun appendPlayerToGame(game: MatchMakerGameUnit, credentials: Long): Unit =
             serviceCommunicator.appendPlayerToGame(game, credentials)
                     .also { game.incPlayers() }
 

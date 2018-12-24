@@ -1,6 +1,5 @@
 package com.kotlingirl.gameservice.socket
 
-import com.kotlingirl.gameservice.communication.User
 import com.kotlingirl.gameservice.game.Game
 import com.kotlingirl.gameservice.game.GameRepository
 import com.kotlingirl.serverconfiguration.util.IntIdGen
@@ -28,14 +27,19 @@ class SockEventHandler : TextWebSocketHandler() {
         logger().info("Query string was ${session.uri?.query}")
         val uriParams = session.uri?.query?.queryToMap() ?: mapOf()
         logger().info("Logged user got such params - $uriParams")
-        val gameId = uriParams["gameId"]?.toInt() ?: 0
-        val game = gameRepository.getGame(gameId)!!
-        synchronized(game) {
-            sessions2games[session] = game
+        val gameId = uriParams["gameId"]?.toInt() ?: -1
+        val userId = uriParams["userId"]?.toLong() ?: -1
+        val game = gameRepository.getGame(gameId) ?: Game(0)
+        synchronized(game){
+            if (!game.users.any { it.userId == userId && !it.linked}) {
+                session.close(CloseStatus.NOT_ACCEPTABLE)
+                log.warn("Somebody wanted to unproperly connect to game")
+            }
             game.linkUser(session)
+            sessions2games[session] = game
 /*            if(game.curCountOfPlayers() == game.count) {
                 game.start()
-            }*/// todo uncomment to test warmUp
+            }*/// todo uncomment
             if (game.curCountOfPlayers() == game.count) {
                 game.mainInit()
             } else {

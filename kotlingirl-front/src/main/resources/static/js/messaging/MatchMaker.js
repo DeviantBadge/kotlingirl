@@ -4,7 +4,8 @@ var MatchMaker = function (clusterSetting) {
 
 MatchMaker.prototype.getSettings = function (parameters) {
     return {
-        url: this.clusterSettings.matchMakerUrl() + parameters.gameType,
+        // url: this.clusterSettings.matchMakerPath() + parameters.gameType,
+        url: "/play/" + parameters.gameType,
         method: "POST",
         contentType: 'application/json',
         crossDomain: true,
@@ -13,6 +14,7 @@ MatchMaker.prototype.getSettings = function (parameters) {
 };
 
 MatchMaker.prototype.getGame = function (parameters) {
+    GUI.toggleLoading();
     switch (parameters.gameType) {
         case "casual":
         case "ranked":
@@ -22,7 +24,7 @@ MatchMaker.prototype.getGame = function (parameters) {
             return;
     }
     GM.credentials.name = Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
-    parameters.credentials = GM.credentials;
+    parameters.userId = GM.userId;
     var settings = this.getSettings(parameters);
     settings.data = JSON.stringify(parameters);
 
@@ -32,8 +34,10 @@ MatchMaker.prototype.getGame = function (parameters) {
     $.ajax(settings).done(function(response) {
         mmResponse = response;
         console.log("response - " + response);
+        GUI.toggleLoading();
     }).fail(function (jqXHR, textStatus) {
         alert("Matchmaker request failed");
+        GUI.toggleLoading();
     });
 
     return mmResponse;

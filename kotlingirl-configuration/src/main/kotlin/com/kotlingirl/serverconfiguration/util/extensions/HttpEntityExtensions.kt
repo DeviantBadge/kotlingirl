@@ -13,3 +13,7 @@ fun Any.toJsonHttpEntity() =
         HttpEntity(
                 this.toJsonString(),
                 HttpHeaders().also { it.contentType = MediaType.APPLICATION_JSON })
+
+fun createHttpEntity(mediaType: MediaType) =
+        HttpEntity(null,
+                HttpHeaders().also { it.contentType = mediaType })

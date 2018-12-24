@@ -31,13 +31,11 @@ ServerProxy.prototype.setupMessaging = function() {
 };
 
 ServerProxy.prototype.connectToGameServer = function(mmResponse) {
-    console.log(gClusterSettings.gameServerUrl()
-        + "?server=" + GM.server
-        + "&gameId=" + GM.gameId);
-
-    this.socket = new SockJS("http://localhost:8762/events/connect"
+    // this.socket = new SockJS("http://localhost:8762/events/connect"
+    this.socket = new SockJS("/events/connect"
         + "?server=" + GM.server
         + "&gameId=" + GM.gameId
+        + "&userId=" + GM.userId
     );
     var self = this;
     var prepared = false;

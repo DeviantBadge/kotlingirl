@@ -41,19 +41,18 @@ LoginWindow.prototype.initialize = function (clusterSettings) {
     this.initStage();
 
     this.signInRequest = {
-        url: clusterSettings.signInUrl(),
-        method: "POST",
-        contentType: 'application/json',
+        url: clusterSettings.signInPath(),
+        method: "GET",
         crossDomain: true,
         async: true
     };
 
     this.registerRequest = {
-        url: clusterSettings.registerUrl(),
+        url: "/users/registration",
         method: "POST",
         contentType: 'application/json',
         crossDomain: true,
-        async: true
+        async: false
     };
 
     this.toggleBomb();
@@ -140,15 +139,14 @@ LoginWindow.prototype.signIn = function () {
     console.log("signing in");
     var playerName = $("#inputUsername").val();
     var playerPassword = $("#inputPassword").val();
-    var userData = {
-        name: playerName,
-        password: playerPassword
-    };
 
-    this.signInRequest.data = JSON.stringify(userData);
+    var settings = this.signInRequest;
+    settings.url = gClusterSettings.signInPath() + "/" + playerName + "/" + playerPassword;
+    console.log(settings.url);
     var self = this;
-    $.ajax(this.signInRequest).done(function(response) {
+    $.ajax(settings).done(function(response) {
         console.log(response);
+        GM.userId = response.id;
         GM.credentials.name = playerName;
         GM.credentials.password = playerPassword;
 
@@ -166,9 +164,8 @@ LoginWindow.prototype.signIn = function () {
                 alert(response)
             }
         } else {
-            alert("Failed to SignIn .\n" +
-                "Error message: " + response.errorMessage + "\n" +
-                "Probable solution: " + response.solution);
+            alert("Failed to login.\n" +
+                "Error message: " + response + " code: " + textStatus);
         }
         self.toggleBomb();
         GUI.toggleLoading();
@@ -184,16 +181,19 @@ LoginWindow.prototype.register = function () {
     var playerName = $("#newUsername").val();
     var playerPassword = $("#newUserPassword").val();
     var passwordCopy = $("#newUserPasswordCopy").val();
+    if (playerPassword !== passwordCopy) {
+        alert("Passwords must be equal");
+    }
     var userData = {
-        name: playerName,
-        password: playerPassword,
-        passwordCopy: passwordCopy
+        login: playerName,
+        password: playerPassword
     };
 
     this.registerRequest.data = JSON.stringify(userData);
     var self = this;
     $.ajax(this.registerRequest).done(function(response) {
         console.log(response);
+        GM.userId = response.id;
         GM.credentials.name = playerName;
         GM.credentials.password = playerPassword;
 
@@ -212,8 +212,7 @@ LoginWindow.prototype.register = function () {
             }
         } else {
             alert("Failed to Register.\n" +
-                "Error message: " + response.errorMessage + "\n" +
-                "Probable solution: " + response.solution);
+                "Error message: " + response + " code: " + textStatus);
         }
         self.toggleBomb();
         GUI.toggleLoading();
